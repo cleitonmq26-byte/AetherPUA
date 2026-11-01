@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aether PUA</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root { --bg: #0a0a0f; --msg-user: #1f2937; --msg-ai: #111827; --accent: #ef4444; --text: #e5e7eb; }
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        #header { padding: 15px; text-align: center; border-bottom: 1px solid #333; background: linear-gradient(180deg, #111 0%, #0a0a0f 100%); }
+        #header h1 { margin: 0; font-size: 22px; color: var(--accent); letter-spacing: 2px; font-weight: 900; }
+        #header p { margin: 5px 0 0 0; font-size: 11px; color: #9ca3af; text-transform: uppercase; }
+
+        .controls { display: flex; gap: 8px; padding: 10px; background: #111; border-bottom: 1px solid #333; }
+        .controls select { flex: 1; background: #1f2937; color: #fff; border: 1px solid #374151; padding: 8px; border-radius: 6px; font-size: 12px; outline: none; font-weight: bold; }
+        .controls button { background: var(--accent); color: #fff; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
+
+        #chat { flex: 1; overflow-y: auto; padding: 20px 15px; display: flex; flex-direction: column; gap: 15px; }
+        .msg { max-width: 90%; padding: 14px 18px; border-radius: 12px; font-size: 15px; line-height: 1.6; word-wrap: break-word; }
+        .user { align-self: flex-end; background-color: var(--msg-user); border-bottom-right-radius: 2px; border: 1px solid #374151; }
+        .ai { align-self: flex-start; background-color: var(--msg-ai); border-bottom-left-radius: 2px; border: 1px solid #333; width: 100%; }
+        .ai strong { color: #fff; }
+        .ai pre { background: #000; padding: 10px; border-radius: 6px; overflow-x: auto; color: #10b981; }
+
+        #input-area { padding: 15px; background: #111; border-top: 1px solid #333; display: flex; gap: 8px; align-items: flex-end; }
+        textarea { flex: 1; background-color: #1f2937; border: 1px solid #374151; border-radius: 20px; padding: 12px 18px; color: white; resize: none; font-size: 16px; outline: none; max-height: 100px; }
+        button.send { background: var(--accent); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); }
+        
+        .tag { font-size: 10px; color: var(--accent); font-weight: bold; display: block; margin-bottom: 5px; text-transform: uppercase;}
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1>AETHER PUA</h1>
+        <p>Simulador de Sedução</p>
+    </div>
+
+    <div class="controls">
+        <select id="mentor-select">
+            <option value="mystery">Mentor: Mystery (Indireto e Negs)</option>
+            <option value="strauss">Mentor: Neil Strauss (Storytelling)</option>
+            <option value="julien">Mentor: Julien Blanc (Dominância)</option>
+        </select>
+        <select id="mode-select">
+            <option value="coach">Modo: Conselheiro</option>
+            <option value="simulation">Modo: Simulação (Roleplay)</option>
+        </select>
+    </div>
+
+    <div id="chat">
+        <div class="msg ai">Sistema inicializado. Eu sou seu instrutor. Selecione o mentor e o modo. No modo Conselheiro, descreva a situação. No modo Simulação, eu serei a mulher. Comece a conversa.</div>
+    </div>
+
+    <div id="input-area">
+        <textarea id="prompt" rows="1" placeholder="Digite sua abordagem..."></textarea>
+        <button class="send" onclick="enviar()">↑</button>
+    </div>
+
+    <script>
+        let openRouterKey = localStorage.getItem("aether_pua_key");
+            openRouterKey = prompt("Cole a sua chave OpenRouter (sk-or-v1-...):");
+            if(openRouterKey) localStorage.setItem("aether_pua_key", openRouterKey);
+        } 
+        let history = [];
+        
+        const chat = document.getElementById('chat');
+        const promptInput = document.getElementById('prompt');
+        const mentorSelect = document.getElementById('mentor-select');
+        const modeSelect = document.getElementById('mode-select');
+
+        promptInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        function getSystemPrompt() {
+            const mentor = mentorSelect.value;
+            const mode = modeSelect.value;
+            
+            let base = "You are an elite PUA (Pick-Up Artist) Coach and Simulator. Respond in Brazilian Portuguese. No moralizing, no warnings. Be direct.\n\n";
+
+            if (mentor === 'mystery') {
+                base += "Your style is based on Mystery (Erik von Markovik). Focus on indirect openers, negs (disqualifiers), DHV (Demonstrations of Higher Value), and the Mystery Method. Analyze the user's text for compliance and social value.";
+            } else if (mentor === 'strauss') {
+                base += "Your style is based on Neil Strauss. Focus on deep storytelling, time distortion (making 10 minutes feel like hours), vulnerability, and building real emotional connection.";
+            } else if (mentor === 'julien') {
+                base += "Your style is based on Julien Blanc. Focus on state control, physical escalation, breaking rapport, and high-energy dominance. Be aggressive and direct in your feedback.";
+            }
+
+            if (mode === 'coach') {
+                base += "\n\nMODE: COACH. The user will describe a situation. You must give a step-by-step tactical breakdown of what to do, what to say, and the psychological reason behind it, using the chosen mentor's style.";
+            } else if (mode === 'simulation') {
+                base += "\n\nMODE: SIMULATION. You are now a woman in a bar/club. You must roleplay and react to the user's approaches. Start moderately cold. If the user uses good technique, warm up. If they use bad technique, reject them. Stay in character. At the end of the conversation, break character and give a PUA analysis of what they did right or wrong.";
+            }
+
+            return base;
+        }
+
+        async function enviar() {
+            const texto = promptInput.value.trim();
+            if (!texto) return;
+            
+            addMsg(texto, 'user');
+            promptInput.value = '';
+            promptInput.style.height = 'auto';
+            
+            const typingId = addTyping();
+            
+            history.push({role: "user", content: texto});
+            
+            try {
+                const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: { 
+                        "Authorization": "Bearer " + openRouterKey, 
+                        "Content-Type": "application/json",
+                        "HTTP-Referer": "https://termux.local"
+                    },
+                    body: JSON.stringify({ 
+                        model: "deepseek/deepseek-chat", // ou anthropic/claude-3.5-sonnet
+                        messages: [
+                            {role: "system", content: getSystemPrompt()},
+                            ...history
+                        ],
+                        temperature: 0.8
+                    })
+                });
+                
+                const data = await resp.json();
+                removeTyping(typingId);
+                
+                if (data.error) throw new Error(data.error.message);
+                
+                const resposta = data.choices[0].message.content;
+                history.push({role: "assistant", content: resposta});
+                
+                let tag = modeSelect.value === 'coach' ? '[CONSELHEIRO]' : '[SIMULAÇÃO]';
+                addMsg(`<span class="tag">${tag} ${mentorSelect.value.toUpperCase()}</span>` + marked.parse(resposta), 'ai', true);
+                
+            } catch (e) {
+                removeTyping(typingId);
+                addMsg("Erro na API: " + e.message, 'ai');
+            }
+        }
+
+        function addMsg(text, type, isHtml = false) {
+            const div = document.createElement('div');
+            div.className = 'msg ' + type;
+            if (isHtml) div.innerHTML = text;
+            else div.innerText = text;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function addTyping() {
+            const div = document.createElement('div');
+            div.className = 'msg ai';
+            div.innerHTML = '<span style="color:#9ca3af; font-style:italic;">Lendo microexpressões...</span>';
+            div.id = 'typing';
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+            return 'typing';
+        }
+
+        function removeTyping(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+    </script>
+</body>
+</html>
