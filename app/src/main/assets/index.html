@@ -49,8 +49,12 @@
         <p>Configure o seu treino</p>
         
         <div class="setup-group">
-            <label>Chave OpenRouter (sk-or-v1-...)</label>
-            <input type="password" id="api-key-input" placeholder="Cole sua chave aqui">
+            <label>Chave OpenRouter (sk-or-v1-...) - Opcional</label>
+            <input type="password" id="api-key-input" placeholder="sk-or-v1-...">
+        </div>
+        <div class="setup-group">
+            <label>Chave Groq (gsk_...) - Recomendado (Sem limites)</label>
+            <input type="password" id="groq-key-input" placeholder="gsk_...">
         </div>
 
         <div class="setup-group">
@@ -97,7 +101,9 @@
 
     <script>
         let openRouterKey = localStorage.getItem("aether_pua_key") || "";
+        let groqKey = localStorage.getItem("aether_pua_groq") || "";
         if (openRouterKey) document.getElementById('api-key-input').value = openRouterKey;
+        if (groqKey) document.getElementById('groq-key-input').value = groqKey;
 
         let history = [];
         let isRecording = false;
@@ -117,12 +123,13 @@
 
         function iniciarJogo() {
             let keyInput = document.getElementById('api-key-input').value.trim();
-            if (keyInput) {
-                openRouterKey = keyInput;
-                localStorage.setItem("aether_pua_key", openRouterKey);
-            }
-            if (!openRouterKey) {
-                alert("Por favor, insira a sua chave OpenRouter.");
+            let groqInput = document.getElementById('groq-key-input').value.trim();
+            
+            if (keyInput) { openRouterKey = keyInput; localStorage.setItem("aether_pua_key", openRouterKey); }
+            if (groqInput) { groqKey = groqInput; localStorage.setItem("aether_pua_groq", groqKey); }
+            
+            if (!openRouterKey && !groqKey) {
+                alert("Por favor, insira a chave da OpenRouter ou da Groq.");
                 return;
             }
 
@@ -220,7 +227,6 @@ You MUST format your response EXACTLY like this:
         async function enviar() {
             const texto = promptInput.value.trim();
             if (!texto && !currentBase64Image) return;
-            if (!openRouterKey) { alert("Chave da API não configurada."); return; }
             
             promptInput.value = '';
             promptInput.style.height = 'auto';
@@ -237,40 +243,56 @@ You MUST format your response EXACTLY like this:
                     {type: "image_url", image_url: {url: currentBase64Image}}
                 ];
             }
-            
             userMsgObj.content = payloadContent;
             history.push(userMsgObj);
             
             const typingId = addTyping();
             
             try {
-                const modelos = ["google/gemini-2.0-flash-exp:free", "mistralai/mistral-7b-instruct:free", "qwen/qwen-2.5-72b-instruct:free", "meta-llama/llama-3.1-8b-instruct:free"];
-                let data = null;
-                let sucesso = false;
+                let resposta = null;
                 
-                for (let i = 0; i < modelos.length; i++) {
+                // Tenta a Groq PRIMEIRO (mais estável e grátis)
+                if (groqKey) {
                     try {
-                        const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                        const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                             method: "POST",
-                            headers: { "Authorization": "Bearer " + openRouterKey, "Content-Type": "application/json" },
+                            headers: { "Authorization": "Bearer " + groqKey, "Content-Type": "application/json" },
                             body: JSON.stringify({ 
-                                model: modelos[i], 
+                                model: "llama-3.3-70b-versatile", 
                                 messages: [{role: "system", content: getSystemPrompt()}, ...history.slice(-10)],
                                 temperature: 0.8
                             })
                         });
-                        data = await resp.json();
-                        if (!data.error) { sucesso = true; break; }
-                    } catch (err) { console.log("Modelo " + modelos[i] + " falhou"); }
+                        const data = await resp.json();
+                        if (!data.error) resposta = data.choices[0].message.content;
+                    } catch(e) { console.log("Groq falhou."); }
+                }
+                
+                // Se a Groq falhar (ou não tiver chave), tenta a OpenRouter
+                if (!resposta && openRouterKey) {
+                    const modelos = ["google/gemini-2.0-flash-exp:free", "mistralai/mistral-7b-instruct:free", "qwen/qwen-2.5-72b-instruct:free"];
+                    for (let i = 0; i < modelos.length; i++) {
+                        try {
+                            const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                                method: "POST",
+                                headers: { "Authorization": "Bearer " + openRouterKey, "Content-Type": "application/json" },
+                                body: JSON.stringify({ 
+                                    model: modelos[i], 
+                                    messages: [{role: "system", content: getSystemPrompt()}, ...history.slice(-10)],
+                                    temperature: 0.8
+                                })
+                            });
+                            const data = await resp.json();
+                            if (!data.error) { resposta = data.choices[0].message.content; break; }
+                        } catch(e) { console.log("OpenRouter falhou no modelo " + modelos[i]); }
+                    }
                 }
                 
                 removeTyping(typingId);
                 
-                if (!sucesso || data.error) throw new Error(data.error ? data.error.message : "Todos os modelos falharam.");
+                if (!resposta) throw new Error("Limite de cota atingido em ambas as APIs. Tente novamente mais tarde ou use outra chave.");
                 
-                let resposta = data.choices[0].message.content;
                 history.push({role: "assistant", content: resposta});
-                
                 addMsg(formatarResposta(resposta), 'ai', true);
                 
                 if (!currentBase64Image && resposta.includes('[PERSONAGEM]')) {
@@ -279,7 +301,7 @@ You MUST format your response EXACTLY like this:
 
             } catch (e) {
                 removeTyping(typingId);
-                addMsg("Erro na API: " + e.message, 'ai');
+                addMsg("Erro: " + e.message, 'ai');
             } finally {
                 sendBtn.style.background = '#ef4444';
                 sendBtn.innerText = "↑";
