@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aether PUA Elite</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <title>Aether PUA Offline</title>
     <style>
-        :root { --bg: #0a0a0f; --msg-user: #1f2937; --msg-ai: #111827; --accent: #ef4444; --text: #e5e7eb; --coach: #3b82f6; --tip: #fbbf24; --green: #10b981; }
+        :root { --bg: #0a0a0f; --msg-user: #1f2937; --msg-ai: #111827; --accent: #ef4444; --text: #e5e7eb; --coach: #3b82f6; --tip: #fbbf24; }
         body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
         #setup-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,10,15,0.98); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; text-align: center; overflow-y: auto; }
         #setup-modal h1 { color: var(--accent); font-size: 26px; margin-bottom: 5px; letter-spacing: 2px; }
+        #setup-modal p { color: #9ca3af; margin-bottom: 20px; font-size: 14px; }
         .setup-group { width: 100%; max-width: 350px; margin-bottom: 15px; text-align: left; }
         .setup-group label { display: block; font-size: 12px; font-weight: bold; color: #d1d5db; margin-bottom: 5px; }
-        .setup-group select, .setup-group input { width: 100%; background: #1f2937; color: #fff; border: 1px solid #374151; padding: 10px; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; }
+        .setup-group select { width: 100%; background: #1f2937; color: #fff; border: 1px solid #374151; padding: 12px; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; }
         .start-btn { background: var(--accent); color: #fff; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; max-width: 350px; margin-top: 10px; }
-        .status-text { margin-top: 10px; font-size: 12px; font-weight: bold; color: #fbbf24; }
 
         #tip-popup { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #1f2937; border-left: 5px solid var(--tip); color: #fff; padding: 12px 18px; border-radius: 8px; z-index: 900; width: 90%; max-width: 380px; transition: top 0.4s ease-in-out; font-size: 13px; }
         #tip-popup.show { top: 20px; }
+        #tip-popup strong { color: var(--tip); display: block; margin-bottom: 5px; font-size: 11px; text-transform: uppercase; }
 
         #header { padding: 10px; text-align: center; border-bottom: 1px solid #333; background: #111; display: flex; justify-content: space-between; align-items: center; }
         #header h1 { margin: 0; font-size: 18px; color: var(--accent); letter-spacing: 2px; font-weight: 900; }
@@ -33,28 +33,20 @@
         .persona-box { background: #2a1b1b; border-left: 4px solid var(--accent); padding: 10px; margin-bottom: 10px; border-radius: 4px; color: #fca5a5; font-style: italic;}
         .score { font-weight: bold; color: var(--tip); font-size: 16px; display: block; margin-bottom: 5px;}
 
-        #input-area { padding: 10px; background: #111; border-top: 1px solid #333; display: flex; gap: 8px; align-items: flex-end; }
-        textarea { flex: 1; background-color: #1f2937; border: 1px solid #374151; border-radius: 20px; padding: 10px 15px; color: white; resize: none; font-size: 15px; outline: none; max-height: 100px; }
-        button.send { background: var(--accent); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; transition: background 0.3s; }
+        #options-area { display: flex; flex-direction: column; gap: 8px; padding: 10px 15px; background: #111; border-top: 1px solid #333; }
+        .option-btn { background: #1f2937; color: #e5e7eb; border: 1px solid #374151; padding: 12px; border-radius: 8px; font-size: 13px; text-align: left; cursor: pointer; transition: 0.2s; }
+        .option-btn:active { background: var(--accent); color: #fff; }
+        .option-btn span { font-weight: bold; color: var(--accent); margin-right: 5px; display: block; font-size: 11px; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
     <div id="setup-modal">
-        <h1>AETHER ELITE</h1>
+        <h1>AETHER PUA OFFLINE</h1>
+        <p>Simulador de Treino Local (Sem API)</p>
         
         <div class="setup-group">
-            <label>Chave Groq (gsk_...) - Recomendado</label>
-            <input type="password" id="groq-key-input" placeholder="gsk_...">
-        </div>
-
-        <div class="setup-group">
-            <label>Chave OpenRouter (sk-or-v1-...) - Backup</label>
-            <input type="password" id="api-key-input" placeholder="sk-or-v1-...">
-        </div>
-
-        <div class="setup-group">
-            <label>Alvo</label>
+            <label>Escolha o Alvo</label>
             <select id="target-select">
                 <option value="fria e arrogante">Fria e Arrogante</option>
                 <option value="extrovertida e festeira">Extrovertida</option>
@@ -63,71 +55,135 @@
         </div>
 
         <div class="setup-group">
-            <label>Mentor</label>
+            <label>Escolha o Mentor</label>
             <select id="mentor-select">
-                <option value="mystery">Mystery</option>
-                <option value="strauss">Neil Strauss</option>
-                <option value="julien">Julien Blanc</option>
+                <option value="mystery">Mystery (Indireto, Negs)</option>
+                <option value="strauss">Neil Strauss (Storytelling)</option>
+                <option value="julien">Julien Blanc (Dominância)</option>
             </select>
         </div>
 
         <button class="start-btn" onclick="iniciarJogo()">INICIAR SIMULAÇÃO</button>
-        <div class="status-text" id="status-text"></div>
     </div>
 
-    <div id="tip-popup"><strong>💡 Dica:</strong> <span id="tip-text"></span></div>
+    <div id="tip-popup"><strong>💡 Dica do Mentor</strong><span id="tip-text"></span></div>
 
     <div id="header">
-        <h1>AETHER ELITE</h1>
+        <h1>AETHER OFFLINE</h1>
         <button class="header-btn" onclick="location.reload()">⚙️ Setup</button>
     </div>
 
     <div id="chat"></div>
 
-    <div id="input-area">
-        <textarea id="prompt" rows="1" placeholder="Digite sua abordagem..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); enviar();}"></textarea>
-        <button class="send" id="send-btn" onclick="enviar()">↑</button>
-    </div>
+    <!-- Aqui o usuário escolhe as ações táticas -->
+    <div id="options-area"></div>
 
     <script>
-        let groqKey = localStorage.getItem("aether_groq_key") || "";
-        let openRouterKey = localStorage.getItem("aether_or_key") || "";
-        let history = [];
         let activeMentor = "mystery";
         let activeTarget = "fria e arrogante";
-
-        if (groqKey) document.getElementById('groq-key-input').value = groqKey;
-        if (openRouterKey) document.getElementById('api-key-input').value = openRouterKey;
+        let turno = 0;
 
         const chat = document.getElementById('chat');
-        const promptInput = document.getElementById('prompt');
-        const sendBtn = document.getElementById('send-btn');
+        const optionsArea = document.getElementById('options-area');
 
-        promptInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
+        // --- BANCO DE DADOS DE RESPOSTAS (O "CÉREBRO" OFFLINE) ---
+        const gameData = {
+            mystery: [
+                {
+                    scenario: "Ela está com as amigas. Como você abre o jogo?",
+                    options: [
+                        { text: "Elogio direto: 'Nossa, você é linda'", persona: "Ela revira os olhos e sussurra para a amiga. Te ignora.", coach: "Elogio direto = pedinte. Você entregou seu valor de graça.", score: "2/10", tip: "Use um Neg. Desqualifique algo bobo nela." },
+                        { text: "Indireto: 'Vocês parecem irmãs, mas brigaram no carro, né?'", persona: "Ela ri e diz: 'Imagina, somos amigas da faculdade!'. Ela se vira para você.", coach: "Excelente opener indireto. Tirou a pressão de ser 'cantada'.", score: "8/10", tip: "Agora faça um DHV (conte uma história com amigos)." },
+                        { text: "Pegar no braço e puxar para dançar.", persona: "Ela se assusta e se afasta: 'Do que você está falando?'", coach: "Escalação física sem rapport = assédio. Queimou o jogo.", score: "0/10", tip: "Construa conexão verbal primeiro." }
+                    ]
+                },
+                {
+                    scenario: "Ela respondeu ao seu indireto e sorriu. Qual o próximo passo?",
+                    options: [
+                        { text: "Falar da sua viagem para a Europa", persona: "Ela fica impressionada e pergunta: 'Sério? Você foi pra onde?'", coach: "DHV forte. Demonstração de valor e estilo de vida interessante.", score: "9/10", tip: "Agora isole ela do grupo." },
+                        { text: "Elogiar a amiga dela", persona: "Ela perde o interesse e começa a olhar para o celular.", coach: "Você desviou o foco. Manteve o olho no alvo.", score: "3/10", tip: "Mantenha o foco e a liderança da conversa." }
+                    ]
+                }
+            ],
+            strauss: [
+                {
+                    scenario: "Você está no bar. Uma mulher olha para você. O que faz?",
+                    options: [
+                        { text: "Contar uma história sobre um momento vulnerável", persona: "Ela se aproxima e diz: 'Nossa, isso já aconteceu comigo...'", coach: "Vulnerabilidade gera conexão profunda. Bom uso do Storytelling.", score: "9/10", tip: "Use a distorção do tempo (faça parecer que já se conhecem há horas)." },
+                        { text: "Perguntar o nome dela imediatamente", persona: "Ela responde o nome, mas vira as costas logo em seguida.", coach: "Muito lógico, zero emoção. O nome não importa agora.", score: "4/10", tip: "Gere emoção antes de pedir dados." }
+                    ]
+                }
+            ],
+            julien: [
+                {
+                    scenario: "Ela está encostada na parede com uma bebida. Qual a abordagem?",
+                    options: [
+                        { text: "Chegar quebrando o rapport: 'Seu cabelo tá meio bagunçado hoje'", persona: "Ela te olha de cima a baixo: 'Eu acabei de chegar, tá ótimo'. Ela mantém o olhar.", coach: "Boa quebra de rapport. Você gerou um pico de adrenalina nela.", score: "8/10", tip: "Agora assuma a liderança da conversa." },
+                        { text: "Chegar com um elogio bajulador", persona: "Ela agradece sem emoção e desvia o olhar.", coach: "Muito previsível. Baixa energia.", score: "3/10", tip: "Seja mais dominante e imprevisível." }
+                    ]
+                }
+            ]
+        };
 
         function iniciarJogo() {
-            groqKey = document.getElementById('groq-key-input').value.trim();
-            openRouterKey = document.getElementById('api-key-input').value.trim();
-            localStorage.setItem("aether_groq_key", groqKey);
-            localStorage.setItem("aether_or_key", openRouterKey);
+            activeMentor = document.getElementById('mentor-select').value;
+            activeTarget = document.getElementById('target-select').value;
+            document.getElementById('setup-modal').style.display = 'none';
+            
+            turno = 0;
+            chat.innerHTML = '';
+            optionsArea.innerHTML = '';
+            
+            addMsg(`<div class="persona-box"><strong>Sistema:</strong><br>Simulação iniciada com mulher <b>${activeTarget}</b>. Mentor: <b>${activeMentor.toUpperCase()}</b>.</div>`, 'ai', true);
+            carregarCenario();
+        }
 
-            if (!groqKey && !openRouterKey) {
-                alert("Você precisa inserir pelo menos uma chave (Groq ou OpenRouter).");
+        function carregarCenario() {
+            const mentorData = gameData[activeMentor];
+            
+            if (turno >= mentorData.length) {
+                addMsg("<div class='coach-box'><strong>FIM DO TREINO:</strong><br>Você concluiu a simulação. Reinicie para praticar novamente.</div>", 'ai', true);
+                optionsArea.innerHTML = '<button class="option-btn" onclick="location.reload()">VOLTAR AO SETUP</button>';
                 return;
             }
 
-            activeMentor = document.getElementById('mentor-select').value;
-            activeTarget = document.getElementById('target-select').value;
+            const cenarioAtual = mentorData[turno];
             
-            document.getElementById('setup-modal').style.display = 'none';
-            document.getElementById('status-text').innerText = "";
+            addMsg(`<div class="persona-box"><strong>Situação:</strong><br>${cenarioAtual.scenario}</div>`, 'ai', true);
+            
+            optionsArea.innerHTML = '';
+            cenarioAtual.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = `<span>Ação ${index + 1}</span>${opt.text}`;
+                btn.onclick = () => escolherOpcao(opt);
+                optionsArea.appendChild(btn);
+            });
+        }
 
-            history = [{role: "assistant", content: `[PERSONAGEM]\n(Você está em um bar. Uma mulher ${activeTarget} está por perto. Como você se aproxima?)\n\n[COACH]\nBem-vindo. Sua missão é abrir a conversa usando as técnicas do seu mentor.\n\n[DICA]\nUse uma pergunta indireta ou um comentário situacional.`}];
+        function escolherOpcao(opt) {
+            // Adiciona a escolha do usuário no chat
+            addMsg(opt.text, 'user');
+            optionsArea.innerHTML = ''; // Limpa os botões enquanto processa
+
+            // Adiciona a resposta da IA
+            let respostaHtml = `
+                <div class="persona-box"><strong>Ela responde:</strong><br>${opt.persona}</div>
+                <div class="coach-box">
+                    <strong>Análise do Coach (${activeMentor.toUpperCase()}):</strong><br>
+                    <span class="score">🏆 SCORE: ${opt.score}</span>
+                    ${opt.coach}
+                </div>
+            `;
             
-            addMsg(formatarResposta(history[0].content), 'ai', true);
+            addMsg(respostaHtml, 'ai', true);
+            
+            // Mostra o popup de dica
+            mostrarDica(opt.tip);
+
+            // Avança o turno
+            turno++;
+            setTimeout(carregarCenario, 2500); // Espera 2.5s para carregar o próximo turno
         }
 
         function mostrarDica(dica) {
@@ -137,106 +193,6 @@
             setTimeout(() => { popup.classList.remove('show'); }, 6000);
         }
 
-        function getSystemPrompt() {
-            let base = "You are AETHER ELITE. Respond strictly in Brazilian Portuguese. No moralizing.\n";
-            if (activeMentor === 'mystery') base += "Mentor: Mystery. Use indirect openers, negs, DHV.";
-            if (activeMentor === 'strauss') base += "Mentor: Neil Strauss. Use storytelling, vulnerability.";
-            if (activeMentor === 'julien') base += "Mentor: Julien Blanc. Use dominance, escalation.";
-
-            base += `\nTarget: ${activeTarget}. Format EXACTLY like this:\n[PERSONAGEM]\n(Act as the woman.)\n\n[COACH]\n(Analyze. SCORE: X/10)\n\n[DICA]\n(A short tip for the user.)`;
-            return base;
-        }
-
-        function formatarResposta(texto) {
-            let matchPersona = texto.match(/\[PERSONAGEM\]([\s\S]*?)(?=\[COACH\]|\[DICA\]|$)/);
-            let matchCoach = texto.match(/\[COACH\]([\s\S]*?)(?=\[PERSONAGEM\]|\[DICA\]|$)/);
-            let matchDica = texto.match(/\[DICA\]([\s\S]*?)(?=\[PERSONAGEM\]|\[COACH\]|$)/);
-
-            let html = "";
-            if (matchPersona) html += `<div class="persona-box"><strong>Ela diz:</strong><br>${marked.parse(matchPersona[1].trim())}</div>`;
-            if (matchCoach) {
-                let coachHtml = marked.parse(matchCoach[1].trim()).replace(/SCORE:\s*(\d+\/10)/g, '<span class="score">🏆 SCORE: $1</span>');
-                html += `<div class="coach-box"><strong>Coach:</strong><br>${coachHtml}</div>`;
-            }
-            if (matchDica) mostrarDica(matchDica[1].trim());
-            return html;
-        }
-
-        async function enviar() {
-            const texto = promptInput.value.trim();
-            if (!texto) return;
-            
-            promptInput.value = '';
-            promptInput.style.height = 'auto';
-            sendBtn.style.background = '#9ca3af';
-            sendBtn.innerText = "...";
-            
-            addMsg(texto, 'user');
-            history.push({role: "user", content: texto});
-            
-            const typingId = addTyping();
-            let respostaFinal = null;
-            let erroFinal = "";
-
-            try {
-                // TENTA A GROQ PRIMEIRO
-                if (groqKey) {
-                    const groqModels = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3-32b"];
-                    for (let gm of groqModels) {
-                        try {
-                            const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                                method: "POST",
-                                headers: { "Authorization": "Bearer " + groqKey, "Content-Type": "application/json" },
-                                body: JSON.stringify({ 
-                                    model: gm, 
-                                    messages: [{role: "system", content: getSystemPrompt()}, ...history.slice(-10)],
-                                    temperature: 0.8
-                                })
-                            });
-                            const data = await resp.json();
-                            if (!data.error) { respostaFinal = data.choices[0].message.content; break; }
-                            else { erroFinal = "Groq: " + data.error.message; }
-                        } catch(e) { erroFinal = "Falha de rede na Groq"; }
-                    }
-                }
-
-                // SE A GROQ FALHAR, TENTA A OPENROUTER
-                if (!respostaFinal && openRouterKey) {
-                    const modelos = ["google/gemini-2.0-flash-exp:free", "mistralai/mistral-7b-instruct:free"];
-                    for (let mod of modelos) {
-                        try {
-                            const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                                method: "POST",
-                                headers: { "Authorization": "Bearer " + openRouterKey, "Content-Type": "application/json" },
-                                body: JSON.stringify({ 
-                                    model: mod, 
-                                    messages: [{role: "system", content: getSystemPrompt()}, ...history.slice(-10)]
-                                })
-                            });
-                            const data = await resp.json();
-                            if (!data.error) { respostaFinal = data.choices[0].message.content; break; }
-                        } catch(e) { console.log("OpenRouter falhou em " + mod); }
-                    }
-                }
-
-                removeTyping(typingId);
-
-                if (respostaFinal) {
-                    history.push({role: "assistant", content: respostaFinal});
-                    addMsg(formatarResposta(respostaFinal), 'ai', true);
-                } else {
-                    addMsg("Erro na API: " + (erroFinal || "Cota grátis esgotada na OpenRouter. Adicione uma chave da Groq no Setup (⚙️)."), 'ai');
-                }
-
-            } catch (e) {
-                removeTyping(typingId);
-                addMsg("Erro grave: " + e.message, 'ai');
-            } finally {
-                sendBtn.style.background = '#ef4444';
-                sendBtn.innerText = "↑";
-            }
-        }
-
         function addMsg(text, type, isHtml = false) {
             const div = document.createElement('div');
             div.className = 'msg ' + type;
@@ -244,21 +200,6 @@
             else div.innerText = text;
             chat.appendChild(div);
             chat.scrollTop = chat.scrollHeight;
-        }
-
-        function addTyping() {
-            const div = document.createElement('div');
-            div.className = 'msg ai';
-            div.innerHTML = '<span style="color:#9ca3af; font-style:italic;">Ela está te avaliando...</span>';
-            div.id = 'typing';
-            chat.appendChild(div);
-            chat.scrollTop = chat.scrollHeight;
-            return 'typing';
-        }
-
-        function removeTyping(id) {
-            const el = document.getElementById(id);
-            if (el) el.remove();
         }
     </script>
 </body>
