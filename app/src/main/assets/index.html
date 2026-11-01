@@ -228,8 +228,8 @@ You MUST format your response EXACTLY like this:
             sendBtn.innerText = "...";
             
             let userMsgObj = {role: "user", content: texto || "Analise a imagem enviada."};
-            addMsg(texto || "[IMAGEM ENVIADA]", 'user'); // Muda a cor do botão indicando envio
-
+            addMsg(texto || "[IMAGEM ENVIADA]", 'user');
+            
             let payloadContent = texto;
             if (currentBase64Image) {
                 payloadContent = [
@@ -244,22 +244,29 @@ You MUST format your response EXACTLY like this:
             const typingId = addTyping();
             
             try {
-                const model = "google/gemini-2.0-flash-exp:free";
+                const modelos = ["google/gemini-2.0-flash-exp:free", "mistralai/mistral-7b-instruct:free", "qwen/qwen-2.5-72b-instruct:free", "meta-llama/llama-3.1-8b-instruct:free"];
+                let data = null;
+                let sucesso = false;
                 
-                const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                    method: "POST",
-                    headers: { "Authorization": "Bearer " + openRouterKey, "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        model: model, 
-                        messages: [{role: "system", content: getSystemPrompt()}, ...history.slice(-10)],
-                        temperature: 0.8
-                    })
-                });
+                for (let i = 0; i < modelos.length; i++) {
+                    try {
+                        const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                            method: "POST",
+                            headers: { "Authorization": "Bearer " + openRouterKey, "Content-Type": "application/json" },
+                            body: JSON.stringify({ 
+                                model: modelos[i], 
+                                messages: [{role: "system", content: getSystemPrompt()}, ...history.slice(-10)],
+                                temperature: 0.8
+                            })
+                        });
+                        data = await resp.json();
+                        if (!data.error) { sucesso = true; break; }
+                    } catch (err) { console.log("Modelo " + modelos[i] + " falhou"); }
+                }
                 
-                const data = await resp.json();
                 removeTyping(typingId);
                 
-                if (data.error) throw new Error(data.error.message);
+                if (!sucesso || data.error) throw new Error(data.error ? data.error.message : "Todos os modelos falharam.");
                 
                 let resposta = data.choices[0].message.content;
                 history.push({role: "assistant", content: resposta});
@@ -273,9 +280,11 @@ You MUST format your response EXACTLY like this:
             } catch (e) {
                 removeTyping(typingId);
                 addMsg("Erro na API: " + e.message, 'ai');
+            } finally {
+                sendBtn.style.background = '#ef4444';
+                sendBtn.innerText = "↑";
+                currentBase64Image = null;
             }
-            sendBtn.style.background = '#ef4444'; // Volta a cor original
-            currentBase64Image = null;
         }
 
         function addMsg(text, type, isHtml = false) {
