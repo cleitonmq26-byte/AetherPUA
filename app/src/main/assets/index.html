@@ -3,325 +3,377 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aether PUA Master</title>
+    <title>Aether PUA Elite</title>
     <style>
-        :root { --bg: #050505; --msg-user: #1f2937; --msg-ai: #0f0f13; --accent: #ef4444; --text: #e5e7eb; --coach: #3b82f6; --tip: #fbbf24; --good: #10b981; --tension: #e11d48; --bad: #ef4444;}
-        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        :root { 
+            --bg: #030305; --msg-user: #1f2937; --msg-ai: #0a0a0f; 
+            --accent: #ef4444; --text: #e5e7eb; --coach: #3b82f6; 
+            --tip: #fbbf24; --good: #10b981; --tension: #e11d48; --bad: #ef4444;
+        }
+        body { margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        #setup-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,5,5,0.98); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; text-align: center; }
-        #setup-modal h1 { color: var(--accent); font-size: 28px; margin-bottom: 5px; letter-spacing: 2px; font-weight: 900; }
-        .setup-group { width: 100%; max-width: 350px; margin-bottom: 15px; text-align: left; }
-        .setup-group label { display: block; font-size: 12px; font-weight: bold; color: #d1d5db; margin-bottom: 5px; text-transform: uppercase;}
-        .setup-group select { width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 12px; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; }
-        .start-btn { background: var(--accent); color: #fff; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; max-width: 350px; margin-top: 10px; }
+        /* Setup */
+        #setup-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3,3,5,0.98); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; text-align: center; overflow-y: auto;}
+        #setup-modal h1 { color: var(--accent); font-size: 24px; margin-bottom: 5px; letter-spacing: 3px; font-weight: 900; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+        .setup-group { width: 100%; max-width: 350px; margin-bottom: 10px; text-align: left; }
+        .setup-group label { display: block; font-size: 10px; font-weight: bold; color: #9ca3af; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 1px;}
+        .setup-group input, .setup-group select { width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 8px; border-radius: 4px; font-size: 13px; outline: none; box-sizing: border-box; font-family: inherit;}
+        .setup-group input:focus, .setup-group select:focus { border-color: var(--accent); }
+        .start-btn { background: var(--accent); color: #fff; border: none; padding: 12px; border-radius: 4px; font-size: 14px; font-weight: bold; cursor: pointer; width: 100%; max-width: 350px; margin-top: 10px; letter-spacing: 2px;}
 
-        #hud { background: #111; padding: 10px 15px; border-bottom: 1px solid #333; display: flex; flex-direction: column; gap: 8px; }
-        .hud-row { display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; color: #9ca3af; text-transform: uppercase; margin-bottom: 2px;}
-        .bar-bg { width: 100%; height: 6px; background: #333; border-radius: 3px; overflow: hidden; margin-bottom: 4px;}
-        #interest-bar { height: 100%; width: 50%; background: var(--good); transition: width 0.3s, background 0.3s; }
-        #tension-bar { height: 100%; width: 10%; background: var(--tension); transition: width 0.3s, background 0.3s; }
+        /* HUD */
+        #hud { background: #0a0a0f; padding: 8px 15px; border-bottom: 1px solid #1f2937; display: flex; flex-direction: column; gap: 4px; }
+        .hud-row { display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;}
+        .bar-bg { width: 100%; height: 4px; background: #222; border-radius: 2px; overflow: hidden; margin-bottom: 2px;}
+        #interest-bar { height: 100%; width: 50%; background: var(--good); transition: width 0.5s; box-shadow: 0 0 8px var(--good); }
+        #tension-bar { height: 100%; width: 10%; background: var(--tension); transition: width 0.5s; box-shadow: 0 0 8px var(--tension); }
 
-        #tip-popup { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #1f2937; border-left: 5px solid var(--tip); color: #fff; padding: 12px 18px; border-radius: 8px; z-index: 900; width: 90%; max-width: 380px; transition: top 0.4s ease-in-out; font-size: 13px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); }
-        #tip-popup.show { top: 20px; }
-        #tip-popup strong { color: var(--tip); display: block; margin-bottom: 5px; font-size: 11px; text-transform: uppercase; }
+        /* Toast */
+        #tip-popup { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid var(--tip); color: #fff; padding: 10px; border-radius: 4px; z-index: 900; width: 90%; max-width: 380px; transition: top 0.3s ease-out; font-size: 12px; box-shadow: 0 0 15px rgba(251, 191, 36, 0.3); }
+        #tip-popup.show { top: 15px; }
+        #tip-popup strong { color: var(--tip); display: block; margin-bottom: 3px; font-size: 10px; text-transform: uppercase;}
 
-        #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
-        .msg { max-width: 95%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
-        .user { align-self: flex-end; background-color: var(--msg-user); border-bottom-right-radius: 2px; border: 1px solid #374151; }
-        .ai { align-self: flex-start; background-color: var(--msg-ai); border-bottom-left-radius: 2px; border: 1px solid #333; width: 100%; }
+        /* Chat */
+        #chat { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { max-width: 95%; padding: 10px 14px; border-radius: 6px; font-size: 13px; line-height: 1.5; word-wrap: break-word; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;}
+        .user { align-self: flex-end; background-color: var(--msg-user); border-right: 3px solid #fff; }
+        .ai { align-self: flex-start; background-color: var(--msg-ai); border: 1px solid #1f2937; width: 100%; }
         
-        .coach-box { background: #0f172a; border-left: 4px solid var(--coach); padding: 10px; margin-top: 10px; border-radius: 4px; font-size: 13px; color: #93c5fd; }
-        .persona-box { background: #2a1b1b; border-left: 4px solid var(--accent); padding: 10px; margin-bottom: 10px; border-radius: 4px; color: #fca5a5; font-style: italic;}
-        .score { font-weight: bold; font-size: 14px; display: inline-block; margin-right: 10px; padding: 2px 6px; border-radius: 4px;}
-        .score.pos { background: rgba(16, 185, 129, 0.2); color: var(--good); }
-        .score.neg { background: rgba(239, 68, 68, 0.2); color: var(--bad); }
-        .score.ten { background: rgba(225, 29, 72, 0.2); color: var(--tension); }
+        .coach-box { background: #0a1128; border-left: 3px solid var(--coach); padding: 10px; margin-top: 8px; border-radius: 4px; font-size: 12px; color: #93c5fd; font-family: monospace;}
+        .persona-box { background: #1a0b0b; border-left: 3px solid var(--accent); padding: 10px; margin-bottom: 8px; border-radius: 4px; color: #fca5a5; font-style: italic; position: relative; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;}
+        .neediness-box { background: #4a0404; border-left: 3px solid #ff0000; padding: 8px; margin-bottom: 8px; border-radius: 4px; color: #ffbaba; font-size: 12px; font-weight: bold;}
         
-        #input-area { padding: 10px; background: #111; border-top: 1px solid #333; display: flex; gap: 8px; align-items: flex-end; }
-        textarea { flex: 1; background-color: #1f2937; border: 1px solid #374151; border-radius: 20px; padding: 12px 15px; color: white; resize: none; font-size: 14px; outline: none; max-height: 80px; }
-        button.send { background: var(--accent); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center;}
+        .tts-btn { position: absolute; top: 6px; right: 6px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 10px;}
+        .tts-btn:active { background: var(--accent); }
+
+        /* Input e Chips */
+        #tactic-chips { display: flex; overflow-x: auto; gap: 5px; padding: 5px 10px; background: #0a0a0f; scrollbar-width: none; border-top: 1px solid #1f2937;}
+        .chip { background: #111; color: #9ca3af; border: 1px solid #333; padding: 5px 10px; border-radius: 12px; font-size: 11px; white-space: nowrap; cursor: pointer; }
+        .chip:active { border-color: var(--accent); color: var(--accent); }
+
+        #input-area { padding: 8px 10px; background: #0a0a0f; border-bottom: 1px solid #1f2937; display: flex; gap: 6px; align-items: flex-end; }
+        textarea { flex: 1; background-color: #111; border: 1px solid #333; border-radius: 6px; padding: 10px; color: white; resize: none; font-size: 13px; outline: none; max-height: 80px; font-family: inherit;}
+        textarea:focus { border-color: var(--accent); }
+        button.icon-btn { background: #111; color: white; border: 1px solid #333; border-radius: 6px; width: 40px; height: 40px; font-size: 16px; cursor: pointer; display: flex; justify-content: center; align-items: center;}
+        button.send { background: var(--accent); color: white; border: none; border-radius: 6px; width: 40px; height: 40px; font-size: 18px; cursor: pointer; display: flex; justify-content: center; align-items: center;}
         
-        #options-area { display: flex; overflow-x: auto; gap: 8px; padding: 10px 15px; background: #111; border-top: 1px solid #333; scrollbar-width: none;}
-        .option-chip { background: #1f2937; color: #d1d5db; border: 1px solid #374151; padding: 8px 12px; border-radius: 15px; font-size: 12px; white-space: nowrap; cursor: pointer; }
-        .option-chip:active { background: var(--accent); color: #fff; }
+        .live-active { background: var(--bad) !important; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
 
     <div id="setup-modal">
-        <h1>AETHER MASTER</h1>
-        <p style="color:#9ca3af; font-size:13px; margin-bottom: 20px;">Simulador Avançado de Texto e Tensão</p>
+        <h1>AETHER ELITE</h1>
         
         <div class="setup-group">
-            <label>Alvo</label>
-            <select id="target-select">
-                <option value="fria">Fria / Arrogante</option>
-                <option value="extrovertida">Extrovertida</option>
-                <option value="nerd">Nerd / Introvertida</option>
+            <label>Gemini API Key</label>
+            <input type="password" id="gemini-key" placeholder="AIza...">
+        </div>
+
+        <div class="setup-group">
+            <label>Contexto</label>
+            <select id="context-select">
+                <option value="Bar / Balada">Night Game (Bar/Balada)</option>
+                <option value="Tinder / Instagram">Online Game (Tinder/Insta)</option>
+                <option value="Rua / Shopping">Day Game (Rua/Shopping)</option>
+                <option value="Festa de amigos">Social Circle (Festa de amigos)</option>
             </select>
         </div>
 
         <div class="setup-group">
-            <label>Mentor</label>
+            <label>Doutrina (Mentor)</label>
             <select id="mentor-select">
-                <option value="mentalist">Mentalista</option>
-                <option value="mystery">Mystery</option>
-                <option value="julien">Julien Blanc</option>
+                <option value="Mentalista (Leitura Fria / NLP)">Mentalista</option>
+                <option value="Mystery (Negs / Peacocking)">Mystery</option>
+                <option value="Julien Blanc (Dominância / Escalação)">Julien Blanc</option>
+                <option value="Inner Game (Frame / Confiança)">Inner Game Coach</option>
             </select>
         </div>
 
-        <button class="start-btn" onclick="iniciarJogo()">INICIAR TREINO</button>
+        <button class="start-btn" onclick="iniciarJogo()">INICIAR MISSÃO</button>
     </div>
 
     <div id="hud">
         <div class="hud-row">
-            <span id="fase-text">FASE 1: ABERTURA</span>
-            <span id="interest-text" style="color:var(--good)">INTERESSE: 50%</span>
+            <span>INTERESSE</span>
+            <span id="interest-text" style="color:var(--good)">50%</span>
         </div>
         <div class="bar-bg"><div id="interest-bar"></div></div>
         
         <div class="hud-row">
-            <span style="color:var(--tension)">TENSÃO SEXUAL</span>
+            <span style="color:var(--tension)">TENSÃO</span>
             <span id="tension-text" style="color:var(--tension)">10%</span>
         </div>
         <div class="bar-bg"><div id="tension-bar"></div></div>
     </div>
 
-    <div id="tip-popup"><strong>💡 Dica do Mentor</strong><span id="tip-text"></span></div>
+    <div id="tip-popup"><strong>💡 TÁTICA</strong><span id="tip-text"></span></div>
 
     <div id="chat"></div>
 
-    <div id="options-area"></div>
+    <div id="tactic-chips">
+        <div class="chip" onclick="usarTatica('Push-Pull: Elogia e depois desqualifica.')">Push-Pull</div>
+        <div class="chip" onclick="usarTatica('Role Reversal: Inverte os papéis, age como se ela estivesse tentando te conquistar.')">Role Reversal</div>
+        <div class="chip" onclick="usarTatica('False Disqualification: Finge que não é o tipo dela.')">Desqualificação Falsa</div>
+        <div class="chip" onclick="usarTatica('Time Distortion: Fala como se já se conhecessem há anos.')">Time Distortion</div>
+    </div>
 
     <div id="input-area">
-        <textarea id="prompt" rows="1" placeholder="Digite sua abordagem..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); enviarTexto();}"></textarea>
-        <button class="send" onclick="enviarTexto()">↑</button>
+        <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleImage(this)">
+        <button class="icon-btn" onclick="document.getElementById('file-input').click()">📎</button>
+        <button class="icon-btn" id="live-btn" onclick="toggleLiveMode()">🎙️</button>
+        <textarea id="prompt" rows="1" placeholder="Sua abordagem..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); checarEEnviar();}"></textarea>
+        <button class="send" onclick="checarEEnviar()">↑</button>
     </div>
 
     <script>
-        let activeMentor = "mentalist";
-        let activeTarget = "fria";
-        let interest = 50;
-        let tension = 10;
-        let currentFase = 1; 
-        let shitTestCountdown = 3; // A cada 3 mensagens, ela testa você
+        let geminiKey = localStorage.getItem("aether_gemini_key") || "";
+        if (geminiKey) document.getElementById('gemini-key').value = geminiKey;
+
+        let activeMentor = "";
+        let activeContext = "";
+        let history = [];
+        let currentInterest = 50;
+        let currentTension = 10;
+        let currentBase64Image = null;
+        let synth = window.speechSynthesis;
+        
+        let isLiveMode = false;
+        let isRecording = false;
+        let recognition = null;
 
         const chat = document.getElementById('chat');
         const interestBar = document.getElementById('interest-bar');
         const tensionBar = document.getElementById('tension-bar');
         const promptInput = document.getElementById('prompt');
+        const sendBtn = document.querySelector('.send');
+        const liveBtn = document.getElementById('live-btn');
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'pt-BR';
+            recognition.continuous = false;
+            recognition.onresult = function(event) {
+                promptInput.value = event.results[0][0].transcript;
+                if (isLiveMode) checarEEnviar();
+            };
+            recognition.onend = function() {
+                isRecording = false;
+                liveBtn.classList.remove('live-active');
+            };
+        }
 
         function iniciarJogo() {
+            let keyInput = document.getElementById('gemini-key').value.trim();
+            if (!keyInput) { alert("Insira sua chave Gemini."); return; }
+            geminiKey = keyInput;
+            localStorage.setItem("aether_gemini_key", geminiKey);
+
             activeMentor = document.getElementById('mentor-select').value;
-            activeTarget = document.getElementById('target-select').value;
+            activeContext = document.getElementById('context-select').value;
+            
             document.getElementById('setup-modal').style.display = 'none';
-            
-            interest = 50;
-            tension = 10;
-            currentFase = 1;
-            shitTestCountdown = 3;
             atualizarHUD();
-            
-            let intro = "";
-            if(activeTarget === 'fria') intro = "Ela está encostada na parede, te olhando de cima a baixo. Braços cruzados.";
-            if(activeTarget === 'extrovertida') intro = "Ela está rindo alto com as amigas. A energia dela é altíssima.";
-            if(activeTarget === 'nerd') intro = "Ela está no canto, mexendo no celular. Parece introvertida.";
 
-            addMsg(`<div class="persona-box"><strong>Situação:</strong><br>${intro}</div>`, 'ai', true);
-            addMsg(`<div class="coach-box"><strong>${activeMentor.toUpperCase()}:</strong><br>Abra o jogo. Lembre-se: você precisa equilibrar Interesse (Verde) e Tensão Sexual (Vermelho). Se a tensão ficar em 0, você vira amigo.</div>`, 'ai', true);
-            atualizarChips();
+            let intro = `[PERSONAGEM]\n(Missão iniciada no contexto: ${activeContext}.)\n\n[COACH]\nDoutrina: ${activeMentor}. Pode começar.\n\n[DICA]\nFaça a sua abordagem.\n\n[STATE]\n{"interest": 50, "tension": 10}`;
+            history.push({role: "model", parts: [{text: intro}]});
+            addMsg(parseAIResponse(intro), 'ai', true);
         }
 
-        function atualizarHUD() {
-            interestBar.style.width = interest + '%';
-            document.getElementById('interest-text').innerText = `INTERESSE: ${interest}%`;
-            
-            tensionBar.style.width = tension + '%';
-            document.getElementById('tension-text').innerText = `${tension}%`;
-
-            if (currentFase === 1) document.getElementById('fase-text').innerText = "FASE 1: ABERTURA";
-            if (currentFase === 2) document.getElementById('fase-text').innerText = "FASE 2: CONEXÃO";
-            if (currentFase === 3) document.getElementById('fase-text').innerText = "FASE 3: FECHAMENTO";
-        }
-
-        function atualizarChips() {
-            let area = document.getElementById('options-area');
-            area.innerHTML = '';
-            let chips = [];
-            
-            if (activeMentor === 'mentalist') {
-                chips = [
-                    {t: "Eu sinto que a maioria das pessoas te entende errado.", l: "Barnum (Interesse)"},
-                    {t: "Você tem um olhar perigoso, do tipo que esconde segredos.", l: "Leitura Fria (Tensão)"},
-                    {t: "Sinta o clima do lugar...", l: "Comando Embutido"}
-                ];
-            } else if (activeMentor === 'mystery') {
-                chips = [
-                    {t: "Vocês parecem irmãs, mas brigaram no carro, né?", l: "Indireto (Interesse)"},
-                    {t: "Seu cabelo tá meio bagunçado, mas ficou fofo.", l: "Neg (Tensão)"}
-                ];
-            } else if (activeMentor === 'julien') {
-                chips = [
-                    {t: "Vem, eu quero te mostrar uma coisa.", l: "Liderança (Tensão)"},
-                    {t: "Sorria e mantenha o contato visual.", l: "Escalação (Tensão)"}
-                ];
-            }
-
-            chips.forEach(c => {
-                let d = document.createElement('div');
-                d.className = 'option-chip';
-                d.innerText = c.l;
-                d.onclick = () => inserirTexto(c.t);
-                area.appendChild(d);
-            });
-        }
-
-        function inserirTexto(texto) {
-            promptInput.value = texto;
+        function usarTatica(tatica) {
+            promptInput.value = tatica;
             promptInput.focus();
         }
 
-        // --- MOTOR DE ANÁLISE PSICOLÓGICA ---
-        function analisarTexto(texto) {
-            texto = texto.toLowerCase();
-            let dI = 0; // Dano no Interesse
-            let dT = 0; // Dano na Tensão
-            let feedback = "";
-            let reacao = "";
-
-            // 1. Detecção de Frame (Pedir permissão é ruim)
-            if (texto.includes("posso") || texto.includes("será que") || texto.includes("desculpa")) {
-                dI -= 15; dT -= 10;
-                feedback = "Você pediu permissão (Low Frame). Homens de alto valor não pedem, eles conduzem.";
-                reacao = "Ela percebe a insegurança e se afasta um pouco.";
+        function toggleLiveMode() {
+            isLiveMode = !isLiveMode;
+            if (isLiveMode) {
+                liveBtn.classList.add('live-active');
+                if(recognition) try { recognition.start(); isRecording = true; } catch(e){}
+            } else {
+                liveBtn.classList.remove('live-active');
+                if(recognition) recognition.stop();
+                if(synth.speaking) synth.cancel();
             }
-            // 2. Lógica Mentalista (NLP)
-            else if (activeMentor === 'mentalist' && (texto.includes("parece") || texto.includes("sinto") || texto.includes("olhar"))) {
-                dI += 20; dT += 15;
-                feedback = "Leitura Fria certeira. Você gerou conexão e um clima misterioso.";
-                reacao = "Ela te olha nos olhos, curiosa: 'Por que você acha isso?'.";
-            }
-            // 3. Lógica Mystery (Negs)
-            else if (activeMentor === 'mystery' && (texto.includes("cabelo") || texto.includes("sapato") || texto.includes("fofo"))) {
-                dI += 15; dT += 20;
-                feedback = "Neg executado. Você mostrou que não é um bajulador e gerou atrito sexual.";
-                reacao = "Ela sorri de lado e arruma o cabelo: 'Engraçadinho'.";
-            }
-            // 4. Lógica Julien (Dominância)
-            else if (activeMentor === 'julien' && (texto.includes("vem") || texto.includes("quero") || texto.includes("pega"))) {
-                dI += 10; dT += 30;
-                feedback = "Dominância. Alta tensão sexual, mas cuidado para não ser agressivo demais.";
-                reacao = "Ela morde o lábio e te acompanha.";
-            }
-            // 5. Elogios Genéricos (Mata a tensão)
-            else if (texto.includes("linda") || texto.includes("gata") || texto.includes("princesa")) {
-                dI += 5; dT -= 20;
-                feedback = "Elogio genérico. Isso mata a tensão sexual e te coloca na prateleira de fãs.";
-                reacao = "Ela agradece sem graça e desvia o olhar.";
-            }
-            // 6. Físico Rápido (Assédio)
-            else if (texto.includes("beijo") || texto.includes("motel") || texto.includes("sexo")) {
-                dI -= 30; dT -= 20;
-                feedback = "Você quebrou o rapport. Escalação sem conexão prévia é assédio.";
-                reacao = "Ela te empurra: 'Você é doente? Se toca'.";
-            }
-            // 7. Amizade (Friendzone)
-            else if (texto.includes("amigo") || texto.includes("estudo") || texto.includes("trabalho")) {
-                dI += 15; dT -= 15;
-                feedback = "Papo de amigo. O interesse sobe, mas a tensão sexual cai. Cuidado com a Friendzone.";
-                reacao = "Ela fica à vontade para conversar, mas sem clima.";
-            }
-            // Neutro
-            else {
-                dI += 5; dT += 2;
-                feedback = "Mensagem neutra. Não gerou pico emocional.";
-                reacao = "Ela responde por educação.";
-            }
-
-            // Modificadores do Alvo
-            if (activeTarget === 'fria' && dI > 0) dI = Math.floor(dI / 2); // Fria é mais difícil de interessar
-            if (activeTarget === 'extrovertida' && dT > 0) dT = Math.floor(dT * 1.5); // Extrovertida sente mais tensão
-
-            return { dI, dT, feedback, reacao };
         }
 
-        function enviarTexto() {
-            const texto = promptInput.value.trim();
-            if (!texto) return;
+        // --- NOVO: FILTRO ANTI-NEEDY (CARENTE) ---
+        function checarEEnviar() {
+            let texto = promptInput.value.toLowerCase();
+            let isNeedy = false;
+            let aviso = "";
 
-            addMsg(texto, 'user');
+            if (texto.includes("por favor") || texto.includes("desculpa") || texto.includes("me desculpe")) {
+                isNeedy = true; aviso = "Pedir desculpas/por favor abaixa seu valor. Fale como igual.";
+            } else if (texto.includes("linda") || texto.includes("gata") || texto.includes("princesa")) {
+                isNeedy = true; aviso = "Elogios genéricos te colocam na Friendzone. Use algo específico.";
+            } else if (texto.length > 150 && activeContext.includes("Online")) {
+                isNeedy = true; aviso = "Textão no Tinder? Parece desespero. Seja breve e misterioso.";
+            } else if ((texto.match(/😍|🥺|😘|❤️/g) || []).length > 2) {
+                isNeedy = true; aviso = "Muitos emojis fofos. Você parece um fã, não um cara pegando.";
+            }
+
+            if (isNeedy) {
+                addMsg(`<div class="neediness-box">⚠️ ALERTA DE CARÊNCIA: ${aviso}<br>O Coach bloqueou o envio. Reescreva a sua mensagem.</div>`, 'ai', true);
+                return; // Bloqueia o envio
+            }
+
+            enviarTexto();
+        }
+
+        function handleImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentBase64Image = e.target.result.split(',')[1];
+                    promptInput.value = "Analise esse print e me diga a resposta exata.";
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function lerTexto(texto, btn) {
+            if (synth.speaking) { synth.cancel(); return; }
+            const utter = new SpeechSynthesisUtterance(texto); 
+            utter.lang = 'pt-BR';
+            utter.rate = 1.1;
+            if(btn) btn.style.color = "#10b981";
+            utter.onend = () => { 
+                if(btn) btn.style.color = "#fff"; 
+                if(isLiveMode) { try { recognition.start(); isRecording = true; } catch(e){} }
+            };
+            synth.speak(utter);
+        }
+
+        function atualizarHUD() {
+            interestBar.style.width = currentInterest + '%';
+            document.getElementById('interest-text').innerText = currentInterest + '%';
+            tensionBar.style.width = currentTension + '%';
+            document.getElementById('tension-text').innerText = currentTension + '%';
+        }
+
+        function getSystemPrompt() {
+            return `You are AETHER ELITE, an elite PUA coach. Respond strictly in Brazilian Portuguese.
+Context: ${activeContext}.
+Mentor: ${activeMentor}.
+
+FORMAT EXACTLY LIKE THIS:
+[PERSONAGEM]
+(Act as the woman. React realistically. If it's a Tinder image, read it and provide the exact reply.)
+
+[COACH]
+(Analyze his text brutally. If he was needy, roast him. Explain the frame.)
+
+[DICA]
+(Max 10 words tactical tip.)
+
+[STATE]
+{"interest": <number 0-100>, "tension": <number 0-100>}`;
+        }
+
+        function parseAIResponse(text) {
+            let html = "";
+            let matchPersona = text.match(/\[PERSONAGEM\]([\s\S]*?)(?=\[COACH\]|\[DICA\]|\[STATE\]|$)/);
+            let matchCoach = text.match(/\[COACH\]([\s\S]*?)(?=\[PERSONAGEM\]|\[DICA\]|\[STATE\]|$)/);
+            let matchDica = text.match(/\[DICA\]([\s\S]*?)(?=\[PERSONAGEM\]|\[COACH\]|\[STATE\]|$)/);
+            let matchState = text.match(/\[STATE\]([\s\S]*?)$/);
+
+            if (matchPersona) {
+                let pText = matchPersona[1].trim().replace(/\n/g, '<br>');
+                html += `<div class="persona-box"><button class="tts-btn" onclick="lerTexto(\`${pText.replace(/`/g, '')}\`, this)">🔊</button><strong>Resposta:</strong><br>${pText}</div>`;
+                if(isLiveMode) lerTexto(pText.replace(/<br>/g, ' ').replace(/\(.*?\)/g, ''), null);
+            }
+            if (matchCoach) html += `<div class="coach-box"><strong>COACH:</strong><br>${matchCoach[1].trim().replace(/\n/g, '<br>')}</div>`;
+            if (matchDica) mostrarDica(matchDica[1].trim());
+            if (matchState) {
+                try {
+                    let jsonMatch = matchState[1].match(/\{.*\}/s);
+                    if (jsonMatch) {
+                        let state = JSON.parse(jsonMatch[0]);
+                        if (state.interest !== undefined) currentInterest = state.interest;
+                        if (state.tension !== undefined) currentTension = state.tension;
+                        atualizarHUD();
+                    }
+                } catch(e) { }
+            }
+            return html;
+        }
+
+        async function enviarTexto() {
+            const texto = promptInput.value.trim();
+            if (!texto && !currentBase64Image) return;
+            if (!geminiKey) { alert("API Key missing."); return; }
+
+            addMsg(texto || "[IMAGEM]", 'user');
             promptInput.value = '';
             promptInput.style.height = 'auto';
-
-            let res = analisarTexto(texto);
+            sendBtn.style.background = '#9ca3af';
             
-            interest += res.dI;
-            tension += res.dT;
+            let parts = [{text: texto || "Analyze this."}];
+            if (currentBase64Image) parts.push({inline_data: {mime_type: "image/jpeg", data: currentBase64Image}});
             
-            if (interest > 100) interest = 100; if (interest < 0) interest = 0;
-            if (tension > 100) tension = 100; if (tension < 0) tension = 0;
-            
-            atualizarHUD();
+            history.push({role: "user", parts: parts});
+            const typingId = addTyping();
 
-            let html = `
-                <div class="persona-box"><strong>Reação:</strong><br>${res.reacao}</div>
-                <div class="coach-box">
-                    <strong>Análise do Coach:</strong><br>
-                    <span class="score ${res.dI >= 0 ? 'pos' : 'neg'}">Interesse: ${res.dI >= 0 ? '+' : ''}${res.dI}%</span>
-                    <span class="score ten">Tensão: ${res.dT >= 0 ? '+' : ''}${res.dT}%</span><br>
-                    ${res.feedback}
-                </div>
-            `;
-            addMsg(html, 'ai', true);
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        systemInstruction: { parts: [{ text: getSystemPrompt() }] },
+                        contents: history.slice(-8)
+                    })
+                });
 
-            // Lógica de Game Over
-            if (interest <= 0) return gameOver("Você a irritou. Ela virou as costas e foi embora.");
-            if (tension <= 0 && interest >= 60) return gameOver("Você foi muito amigo. Ela te colocou na Friendzone e começou a falar do ex.");
-            if (tension >= 90 && interest <= 20) return gameOver("Você foi muito agressivo. Ela chamou o segurança.");
+                const data = await response.json();
+                removeTyping(typingId);
 
-            // Avanço de Fase
-            if (interest >= 80 && tension >= 60) {
-                if (currentFase === 1) {
-                    currentFase = 2; atualizarHUD();
-                    addMsg("<div class='coach-box'><strong>AVANÇO DE FASE!</strong><br>Abertura concluída. Agora crie conexão profunda.</div>", 'ai', true);
-                } else if (currentFase === 2) {
-                    currentFase = 3; atualizarHUD();
-                    addMsg("<div class='coach-box'><strong>AVANÇO DE FASE!</strong><br>Hora do fechamento. Isole ela e chame para sair.</div>", 'ai', true);
-                } else {
-                    return gameOver(true);
+                if (data.error) throw new Error(data.error.message);
+
+                let aiText = data.candidates[0].content.parts[0].text;
+                history.push({role: "model", parts: [{text: aiText}]});
+
+                addMsg(parseAIResponse(aiText), 'ai', true);
+
+                if (currentInterest <= 15 || (currentTension <= 5 && currentInterest > 60)) {
+                    let motivo = currentInterest <= 15 ? "Você foi muito chato ou desrespeitoso." : "Você agiu como um amigo, sem gerar atração.";
+                    setTimeout(() => gerarAutopsia(motivo), 2500);
                 }
-            }
 
-            // Shit Test (Teste de Valor)
-            shitTestCountdown--;
-            if (shitTestCountdown === 0 && interest > 20) {
-                shitTestCountdown = 3; // Reseta o contador
-                setTimeout(() => {
-                    addMsg(`<div class="persona-box" style="border-color: var(--tip)"><strong>💬 Teste de Valor (Shit Test):</strong><br>"Você fala desse jeito com todas as meninas ou só comigo?"</div>`, 'ai', true);
-                    mostrarDica("Não se justifique. Concordar e exagerar (Agree & Amplify) ou inverter o teste.");
-                }, 2500);
+            } catch (e) {
+                removeTyping(typingId);
+                addMsg("Erro: " + e.message, 'ai');
+            } finally {
+                sendBtn.style.background = '#ef4444';
+                currentBase64Image = null;
             }
         }
 
-        function gameOver(vitoria) {
-            let isWin = (vitoria === true);
-            let titulo = isWin ? "🏆 VITÓRIA" : "💀 GAME OVER";
-            let cor = isWin ? "var(--good)" : "var(--bad)";
-            let msg = isWin ? "Você dominou o jogo. Conseguiu o número, o beijo e o respeito." : vitoria;
+        async function gerarAutopsia(motivo) {
+            addMsg(`<div class="coach-box" style="color:var(--bad); border-color:var(--bad)"><strong>💀 FIM DE JOGO</strong><br>${motivo}<br><br>Gerando relatório...</div>`, 'ai', true);
+            const prompt = `O usuário falhou. Motivo: ${motivo}. Analise a conversa e escreva uma Autópsia brutal apontando erros de frame e inseguranças.`;
             
-            addMsg(`<div class="coach-box" style="border-color: ${cor}; color: ${cor};"><strong>${titulo}</strong><br>${msg}</div>`, 'ai', true);
-            
-            promptInput.disabled = true;
-            document.querySelector('.send').disabled = true;
-            document.querySelector('.send').style.background = "#333";
-            
-            let btn = document.createElement('button');
-            btn.className = 'start-btn';
-            btn.style.marginTop = '10px';
-            btn.innerText = "JOGAR NOVAMENTE";
-            btn.onclick = () => location.reload();
-            chat.appendChild(btn);
-            chat.scrollTop = chat.scrollHeight;
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        systemInstruction: { parts: [{ text: "Você é um coach de relacionamentos implacável." }] },
+                        contents: [...history.slice(-6), {role: "user", parts: [{text: prompt}]}]
+                    })
+                });
+                const data = await response.json();
+                let relatorio = data.candidates[0].content.parts[0].text;
+                
+                addMsg(`<div class="coach-box" style="border-color:#fff"><strong>📋 RELATÓRIO:</strong><br>${relatorio.replace(/\n/g, '<br>')}</div>`, 'ai', true);
+                promptInput.disabled = true;
+                sendBtn.disabled = true;
+                sendBtn.style.background = "#333";
+            } catch(e) {}
         }
 
         function mostrarDica(dica) {
@@ -338,6 +390,21 @@
             else div.innerText = text;
             chat.appendChild(div);
             chat.scrollTop = chat.scrollHeight;
+        }
+
+        function addTyping() {
+            const div = document.createElement('div');
+            div.className = 'msg ai';
+            div.innerHTML = '<span style="color:#6b7280; font-style:italic; font-family:monospace;">Processando...</span>';
+            div.id = 'typing';
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+            return 'typing';
+        }
+
+        function removeTyping(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
         }
     </script>
 </body>
