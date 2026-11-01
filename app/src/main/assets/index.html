@@ -91,7 +91,7 @@
         <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleImage(this)">
         <button class="icon-btn" onclick="document.getElementById('file-input').click()">📎</button>
         <button class="icon-btn" id="mic-btn" onclick="startVoice()">🎤</button>
-        <textarea id="prompt" rows="1" placeholder="Digite sua abordagem..."></textarea>
+        <textarea id="prompt" rows="1" placeholder="Digite sua abordagem..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); enviar();}"></textarea>
         <button class="send" id="send-btn" onclick="enviar()">↑</button>
     </div>
 
@@ -222,12 +222,13 @@ You MUST format your response EXACTLY like this:
             if (!texto && !currentBase64Image) return;
             if (!openRouterKey) { alert("Chave da API não configurada."); return; }
             
-            let userMsgObj = {role: "user", content: texto || "Analise a imagem enviada."};
-            addMsg(texto || "[IMAGEM ENVIADA]", 'user');
-            
             promptInput.value = '';
             promptInput.style.height = 'auto';
-            sendBtn.style.background = '#9ca3af'; // Muda a cor do botão indicando envio
+            sendBtn.style.background = '#9ca3af';
+            sendBtn.innerText = "...";
+            
+            let userMsgObj = {role: "user", content: texto || "Analise a imagem enviada."};
+            addMsg(texto || "[IMAGEM ENVIADA]", 'user'); // Muda a cor do botão indicando envio
 
             let payloadContent = texto;
             if (currentBase64Image) {
@@ -243,7 +244,7 @@ You MUST format your response EXACTLY like this:
             const typingId = addTyping();
             
             try {
-                const model = currentBase64Image ? "google/gemini-2.0-flash-exp:free" : "deepseek/deepseek-chat";
+                const model = currentBase64Image ? "google/gemini-2.0-flash-exp:free" : "meta-llama/llama-3.3-70b-instruct:free";
                 
                 const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
