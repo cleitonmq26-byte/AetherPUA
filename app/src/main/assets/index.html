@@ -181,20 +181,23 @@
             try {
                 // TENTA A GROQ PRIMEIRO
                 if (groqKey) {
-                    try {
-                        const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                            method: "POST",
-                            headers: { "Authorization": "Bearer " + groqKey, "Content-Type": "application/json" },
-                            body: JSON.stringify({ 
-                                model: "llama-3.3-70b-versatile", 
-                                messages: [{role: "system", content: getSystemPrompt()}, ...history.slice(-10)],
-                                temperature: 0.8
-                            })
-                        });
-                        const data = await resp.json();
-                        if (data.error) erroFinal = "Groq: " + data.error.message;
-                        else respostaFinal = data.choices[0].message.content;
-                    } catch(e) { erroFinal = "Falha de rede na Groq"; }
+                    const groqModels = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3-32b"];
+                    for (let gm of groqModels) {
+                        try {
+                            const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                                method: "POST",
+                                headers: { "Authorization": "Bearer " + groqKey, "Content-Type": "application/json" },
+                                body: JSON.stringify({ 
+                                    model: gm, 
+                                    messages: [{role: "system", content: getSystemPrompt()}, ...history.slice(-10)],
+                                    temperature: 0.8
+                                })
+                            });
+                            const data = await resp.json();
+                            if (!data.error) { respostaFinal = data.choices[0].message.content; break; }
+                            else { erroFinal = "Groq: " + data.error.message; }
+                        } catch(e) { erroFinal = "Falha de rede na Groq"; }
+                    }
                 }
 
                 // SE A GROQ FALHAR, TENTA A OPENROUTER
