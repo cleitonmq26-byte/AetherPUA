@@ -3,18 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aether PUA Offline</title>
+    <title>Aether PUA RPG</title>
     <style>
-        :root { --bg: #0a0a0f; --msg-user: #1f2937; --msg-ai: #111827; --accent: #ef4444; --text: #e5e7eb; --coach: #3b82f6; --tip: #fbbf24; }
+        :root { --bg: #0a0a0f; --msg-user: #1f2937; --msg-ai: #111827; --accent: #ef4444; --text: #e5e7eb; --coach: #3b82f6; --tip: #fbbf24; --good: #10b981; --bad: #ef4444;}
         body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
+        /* Tela de Setup */
         #setup-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,10,15,0.98); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; text-align: center; overflow-y: auto; }
         #setup-modal h1 { color: var(--accent); font-size: 26px; margin-bottom: 5px; letter-spacing: 2px; }
-        #setup-modal p { color: #9ca3af; margin-bottom: 20px; font-size: 14px; }
         .setup-group { width: 100%; max-width: 350px; margin-bottom: 15px; text-align: left; }
         .setup-group label { display: block; font-size: 12px; font-weight: bold; color: #d1d5db; margin-bottom: 5px; }
         .setup-group select { width: 100%; background: #1f2937; color: #fff; border: 1px solid #374151; padding: 12px; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; }
         .start-btn { background: var(--accent); color: #fff; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; max-width: 350px; margin-top: 10px; }
+
+        /* Barra de Interesse */
+        #interest-bar-container { width: 100%; background: #1f2937; height: 8px; border-bottom: 1px solid #333; position: relative; }
+        #interest-bar { height: 100%; width: 50%; background: var(--good); transition: width 0.5s, background 0.5s; }
+        #interest-text { position: absolute; top: 10px; right: 10px; font-size: 10px; color: #9ca3af; z-index: 10; }
 
         #tip-popup { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #1f2937; border-left: 5px solid var(--tip); color: #fff; padding: 12px 18px; border-radius: 8px; z-index: 900; width: 90%; max-width: 380px; transition: top 0.4s ease-in-out; font-size: 13px; }
         #tip-popup.show { top: 20px; }
@@ -31,22 +36,25 @@
         
         .coach-box { background: #0f172a; border-left: 4px solid var(--coach); padding: 10px; margin-top: 10px; border-radius: 4px; font-size: 13px; color: #93c5fd; }
         .persona-box { background: #2a1b1b; border-left: 4px solid var(--accent); padding: 10px; margin-bottom: 10px; border-radius: 4px; color: #fca5a5; font-style: italic;}
-        .score { font-weight: bold; color: var(--tip); font-size: 16px; display: block; margin-bottom: 5px;}
+        .score { font-weight: bold; font-size: 16px; display: block; margin-bottom: 5px; }
+        .score-pos { color: var(--good); }
+        .score-neg { color: var(--bad); }
 
         #options-area { display: flex; flex-direction: column; gap: 8px; padding: 10px 15px; background: #111; border-top: 1px solid #333; }
         .option-btn { background: #1f2937; color: #e5e7eb; border: 1px solid #374151; padding: 12px; border-radius: 8px; font-size: 13px; text-align: left; cursor: pointer; transition: 0.2s; }
         .option-btn:active { background: var(--accent); color: #fff; }
         .option-btn span { font-weight: bold; color: var(--accent); margin-right: 5px; display: block; font-size: 11px; text-transform: uppercase; }
+        
+        .typing { color: #9ca3af; font-style: italic; font-size: 13px; }
     </style>
 </head>
 <body>
 
     <div id="setup-modal">
-        <h1>AETHER PUA OFFLINE</h1>
-        <p>Simulador de Treino Local (Sem API)</p>
+        <h1>AETHER RPG</h1>
         
         <div class="setup-group">
-            <label>Escolha o Alvo</label>
+            <label>Alvo</label>
             <select id="target-select">
                 <option value="fria e arrogante">Fria e Arrogante</option>
                 <option value="extrovertida e festeira">Extrovertida</option>
@@ -55,74 +63,108 @@
         </div>
 
         <div class="setup-group">
-            <label>Escolha o Mentor</label>
+            <label>Mentor</label>
             <select id="mentor-select">
-                <option value="mystery">Mystery (Indireto, Negs)</option>
-                <option value="strauss">Neil Strauss (Storytelling)</option>
-                <option value="julien">Julien Blanc (Dominância)</option>
+                <option value="mystery">Mystery</option>
+                <option value="strauss">Neil Strauss</option>
+                <option value="julien">Julien Blanc</option>
             </select>
         </div>
 
         <button class="start-btn" onclick="iniciarJogo()">INICIAR SIMULAÇÃO</button>
     </div>
 
+    <div id="interest-bar-container">
+        <div id="interest-bar"></div>
+        <div id="interest-text">Interesse: 50%</div>
+    </div>
+
     <div id="tip-popup"><strong>💡 Dica do Mentor</strong><span id="tip-text"></span></div>
 
     <div id="header">
-        <h1>AETHER OFFLINE</h1>
+        <h1>AETHER RPG</h1>
         <button class="header-btn" onclick="location.reload()">⚙️ Setup</button>
     </div>
 
     <div id="chat"></div>
 
-    <!-- Aqui o usuário escolhe as ações táticas -->
     <div id="options-area"></div>
 
     <script>
         let activeMentor = "mystery";
         let activeTarget = "fria e arrogante";
-        let turno = 0;
+        let currentInterest = 50;
+        let currentNodeId = "start";
 
         const chat = document.getElementById('chat');
         const optionsArea = document.getElementById('options-area');
+        const interestBar = document.getElementById('interest-bar');
+        const interestText = document.getElementById('interest-text');
 
-        // --- BANCO DE DADOS DE RESPOSTAS (O "CÉREBRO" OFFLINE) ---
+        // --- BANCO DE DADOS DO JOGO (RPG) ---
         const gameData = {
-            mystery: [
-                {
-                    scenario: "Ela está com as amigas. Como você abre o jogo?",
+            mystery: {
+                start: {
+                    text: "Ela está com as amigas. Como você abre o jogo?",
                     options: [
-                        { text: "Elogio direto: 'Nossa, você é linda'", persona: "Ela revira os olhos e sussurra para a amiga. Te ignora.", coach: "Elogio direto = pedinte. Você entregou seu valor de graça.", score: "2/10", tip: "Use um Neg. Desqualifique algo bobo nela." },
-                        { text: "Indireto: 'Vocês parecem irmãs, mas brigaram no carro, né?'", persona: "Ela ri e diz: 'Imagina, somos amigas da faculdade!'. Ela se vira para você.", coach: "Excelente opener indireto. Tirou a pressão de ser 'cantada'.", score: "8/10", tip: "Agora faça um DHV (conte uma história com amigos)." },
-                        { text: "Pegar no braço e puxar para dançar.", persona: "Ela se assusta e se afasta: 'Do que você está falando?'", coach: "Escalação física sem rapport = assédio. Queimou o jogo.", score: "0/10", tip: "Construa conexão verbal primeiro." }
+                        { text: "Elogio direto: 'Nossa, você é linda'", next: "bad_opener", effect: -20, persona: "Ela revira os olhos e sussurra para a amiga. Te ignora.", coach: "Elogio direto = pedinte. Você entregou seu valor de graça.", tip: "Use um Neg. Desqualifique algo bobo nela." },
+                        { text: "Indireto: 'Vocês parecem irmãs, mas brigaram no carro, né?'", next: "good_opener", effect: +20, persona: "Ela ri e diz: 'Imagina, somos amigas da faculdade!'. Ela se vira para você.", coach: "Excelente opener indireto. Tirou a pressão de ser 'cantada'.", tip: "Agora faça um DHV (conte uma história com amigos)." }
                     ]
                 },
-                {
-                    scenario: "Ela respondeu ao seu indireto e sorriu. Qual o próximo passo?",
+                bad_opener: {
+                    text: "Ela te ignorou completamente. O que fazer?",
                     options: [
-                        { text: "Falar da sua viagem para a Europa", persona: "Ela fica impressionada e pergunta: 'Sério? Você foi pra onde?'", coach: "DHV forte. Demonstração de valor e estilo de vida interessante.", score: "9/10", tip: "Agora isole ela do grupo." },
-                        { text: "Elogiar a amiga dela", persona: "Ela perde o interesse e começa a olhar para o celular.", coach: "Você desviou o foco. Manteve o olho no alvo.", score: "3/10", tip: "Mantenha o foco e a liderança da conversa." }
+                        { text: "Insistir e falar mais alto", next: "game_over_creepy", effect: -40, persona: "Ela chama o segurança com os olhos.", coach: "Insistir após ser ignorado é assédio. Jogo encerrado.", tip: "Nunca insista se o interesse zerar." },
+                        { text: "Pedir desculpas e ir embora", next: "game_over_soft", effect: -10, persona: "Ela dá de ombros.", coach: "Recuar foi melhor que insistir, mas o jogo acabou.", tip: "Tente um opener indireto na próxima." }
+                    ]
+                },
+                good_opener: {
+                    text: "Ela sorriu! Qual o próximo passo?",
+                    options: [
+                        { text: "Falar da sua viagem para a Europa", next: "dhv_story", effect: +20, persona: "Ela fica impressionada: 'Sério? Você foi pra onde?'", coach: "DHV forte. Demonstração de valor e estilo de vida.", tip: "Isole ela do grupo agora." },
+                        { text: "Elogiar a amiga dela", next: "bad_jealous", effect: -30, persona: "Ela perde o interesse e vira as costas.", coach: "Você desviou o foco. Manteve o olho no alvo.", tip: "Mantenha o foco e a liderança da conversa." }
+                    ]
+                },
+                dhv_story: {
+                    text: "Você contou a história. As amigas dela estão ouvindo também. E agora?",
+                    options: [
+                        { text: "Pedir o número dela na frente de todos", next: "win_game", effect: +30, persona: "Ela sorri, pega seu celular e salva o número.", coach: "Fechamento limpo. Você manteve o frame até o fim.", tip: "Marque o encontro logo." },
+                        { text: "Ignorar as amigas e sussurrar no ouvido dela", next: "bad_too_fast", effect: -20, persona: "Ela se afasta, incomodada.", coach: "Muito rápido. As amigas são os guardiões.", tip: "Ganhe o grupo primeiro." }
                     ]
                 }
-            ],
-            strauss: [
-                {
-                    scenario: "Você está no bar. Uma mulher olha para você. O que faz?",
+            },
+            strauss: {
+                start: {
+                    text: "Você está no bar. Uma mulher olha para você. O que faz?",
                     options: [
-                        { text: "Contar uma história sobre um momento vulnerável", persona: "Ela se aproxima e diz: 'Nossa, isso já aconteceu comigo...'", coach: "Vulnerabilidade gera conexão profunda. Bom uso do Storytelling.", score: "9/10", tip: "Use a distorção do tempo (faça parecer que já se conhecem há horas)." },
-                        { text: "Perguntar o nome dela imediatamente", persona: "Ela responde o nome, mas vira as costas logo em seguida.", coach: "Muito lógico, zero emoção. O nome não importa agora.", score: "4/10", tip: "Gere emoção antes de pedir dados." }
+                        { text: "Contar uma história sobre um momento vulnerável", next: "good_story", effect: +25, persona: "Ela se aproxima: 'Nossa, isso já aconteceu comigo...'", coach: "Vulnerabilidade gera conexão. Bom storytelling.", tip: "Use a distorção do tempo." },
+                        { text: "Perguntar o nome dela imediatamente", next: "bad_logic", effect: -15, persona: "Ela responde o nome, mas vira as costas.", coach: "Muito lógico, zero emoção. O nome não importa agora.", tip: "Gere emoção antes de pedir dados." }
+                    ]
+                },
+                good_story: {
+                    text: "Ela se abriu e está tocando no seu braço enquanto conversam. E agora?",
+                    options: [
+                        { text: "Fazer uma pergunta profunda sobre os sonhos dela", next: "win_game", effect: +30, persona: "Vocês conversam por horas. Ela te dá o número.", coach: "Conexão profunda estabelecida.", tip: "Você dominou o jogo." },
+                        { text: "Mudar para papo furado de futebol", next: "bad_break", effect: -30, persona: "Ela boceja e olha para o celular.", coach: "Quebrou a conexão emocional. Perdeu o frame.", tip: "Mantenha a profundidade." }
                     ]
                 }
-            ],
-            julien: [
-                {
-                    scenario: "Ela está encostada na parede com uma bebida. Qual a abordagem?",
+            },
+            julien: {
+                start: {
+                    text: "Ela está encostada na parede com uma bebida. Qual a abordagem?",
                     options: [
-                        { text: "Chegar quebrando o rapport: 'Seu cabelo tá meio bagunçado hoje'", persona: "Ela te olha de cima a baixo: 'Eu acabei de chegar, tá ótimo'. Ela mantém o olhar.", coach: "Boa quebra de rapport. Você gerou um pico de adrenalina nela.", score: "8/10", tip: "Agora assuma a liderança da conversa." },
-                        { text: "Chegar com um elogio bajulador", persona: "Ela agradece sem emoção e desvia o olhar.", coach: "Muito previsível. Baixa energia.", score: "3/10", tip: "Seja mais dominante e imprevisível." }
+                        { text: "Chegar quebrando o rapport: 'Seu cabelo tá bagunçado hoje'", next: "good_dom", effect: +20, persona: "Ela te olha de cima a baixo: 'Eu acabei de chegar, tá ótimo'. Ela mantém o olhar.", coach: "Boa quebra de rapport. Gerou adrenalina.", tip: "Agora assuma a liderança." },
+                        { text: "Chegar com um elogio bajulador", next: "bad_nice", effect: -20, persona: "Ela agradece sem emoção e desvia o olhar.", coach: "Muito previsível. Baixa energia.", tip: "Seja mais dominante." }
+                    ]
+                },
+                good_dom: {
+                    text: "Ela está te encarando, testando sua confiança. O que você faz?",
+                    options: [
+                        { text: "Desviar o olhar primeiro e mudar de assunto", next: "bad_sub", effect: -30, persona: "Ela sorri com desdém e se afasta.", coach: "Desviar o olhar = submissão. Perdeu o frame.", tip: "Mantenha o contato visual." },
+                        { text: "Manter o olhar e dizer: 'Você tem um sorriso perigoso'", next: "win_game", effect: +30, persona: "Ela morde o lábio e diz: 'Você não faz ideia'.", coach: "Dominância mantida. Excelente fechamento.", tip: "Game Over: Você venceu." }
                     ]
                 }
-            ]
+            }
         };
 
         function iniciarJogo() {
@@ -130,26 +172,42 @@
             activeTarget = document.getElementById('target-select').value;
             document.getElementById('setup-modal').style.display = 'none';
             
-            turno = 0;
-            chat.innerHTML = '';
-            optionsArea.innerHTML = '';
+            currentInterest = 50;
+            currentNodeId = "start";
             
-            addMsg(`<div class="persona-box"><strong>Sistema:</strong><br>Simulação iniciada com mulher <b>${activeTarget}</b>. Mentor: <b>${activeMentor.toUpperCase()}</b>.</div>`, 'ai', true);
+            atualizarBarra();
+            chat.innerHTML = `<div class="persona-box"><strong>Sistema:</strong><br>Simulação iniciada com mulher <b>${activeTarget}</b>. Mentor: <b>${activeMentor.toUpperCase()}</b>.</div>`;
+            
             carregarCenario();
         }
 
-        function carregarCenario() {
-            const mentorData = gameData[activeMentor];
+        function atualizarBarra() {
+            interestBar.style.width = currentInterest + '%';
+            interestText.innerText = `Interesse: ${currentInterest}%`;
             
-            if (turno >= mentorData.length) {
-                addMsg("<div class='coach-box'><strong>FIM DO TREINO:</strong><br>Você concluiu a simulação. Reinicie para praticar novamente.</div>", 'ai', true);
-                optionsArea.innerHTML = '<button class="option-btn" onclick="location.reload()">VOLTAR AO SETUP</button>';
+            if (currentInterest >= 70) interestBar.style.background = 'var(--good)';
+            else if (currentInterest >= 40) interestBar.style.background = '#fbbf24';
+            else interestBar.style.background = 'var(--bad)';
+        }
+
+        function carregarCenario() {
+            if (currentInterest >= 100 || currentNodeId === "win_game") {
+                finalizarJogo("Você dominou o jogo. Ela está completamente atraída. Você ganhou o número dela (ou algo mais).", true);
+                return;
+            }
+            if (currentInterest <= 0 || currentNodeId.includes("game_over")) {
+                finalizarJogo("O interesse dela zerou. Ela te deu um fora, virou as costas ou chamou o segurança.", false);
                 return;
             }
 
-            const cenarioAtual = mentorData[turno];
+            const cenarioAtual = gameData[activeMentor][currentNodeId];
             
-            addMsg(`<div class="persona-box"><strong>Situação:</strong><br>${cenarioAtual.scenario}</div>`, 'ai', true);
+            if (!cenarioAtual) { // Fim do caminho sem win/lose explícito
+                finalizarJogo("Você chegou ao fim da conversa. O jogo terminou.", true);
+                return;
+            }
+
+            addMsg(`<div class="persona-box"><strong>Situação:</strong><br>${cenarioAtual.text}</div>`, 'ai', true);
             
             optionsArea.innerHTML = '';
             cenarioAtual.options.forEach((opt, index) => {
@@ -162,28 +220,41 @@
         }
 
         function escolherOpcao(opt) {
-            // Adiciona a escolha do usuário no chat
             addMsg(opt.text, 'user');
-            optionsArea.innerHTML = ''; // Limpa os botões enquanto processa
-
-            // Adiciona a resposta da IA
-            let respostaHtml = `
-                <div class="persona-box"><strong>Ela responde:</strong><br>${opt.persona}</div>
-                <div class="coach-box">
-                    <strong>Análise do Coach (${activeMentor.toUpperCase()}):</strong><br>
-                    <span class="score">🏆 SCORE: ${opt.score}</span>
-                    ${opt.coach}
-                </div>
-            `;
+            optionsArea.innerHTML = '<div class="typing">Ela está processando...</div>';
             
-            addMsg(respostaHtml, 'ai', true);
-            
-            // Mostra o popup de dica
-            mostrarDica(opt.tip);
+            setTimeout(() => {
+                currentInterest += opt.effect;
+                if (currentInterest > 100) currentInterest = 100;
+                if (currentInterest < 0) currentInterest = 0;
+                atualizarBarra();
 
-            // Avança o turno
-            turno++;
-            setTimeout(carregarCenario, 2500); // Espera 2.5s para carregar o próximo turno
+                let scoreClass = opt.effect >= 0 ? "score-pos" : "score-neg";
+                let scoreText = (opt.effect >= 0 ? "+" : "") + opt.effect + "%";
+
+                let respostaHtml = `
+                    <div class="persona-box"><strong>Ela responde:</strong><br>${opt.persona}</div>
+                    <div class="coach-box">
+                        <strong>Análise do Coach (${activeMentor.toUpperCase()}):</strong><br>
+                        <span class="score ${scoreClass}">Interesse: ${scoreText}</span>
+                        ${opt.coach}
+                    </div>
+                `;
+                
+                addMsg(respostaHtml, 'ai', true);
+                mostrarDica(opt.tip);
+
+                currentNodeId = opt.next;
+                setTimeout(carregarCenario, 2000);
+            }, 1500);
+        }
+
+        function finalizarJogo(mensagem, vitoria) {
+            let cor = vitoria ? "var(--good)" : "var(--bad)";
+            let titulo = vitoria ? "🏆 VITÓRIA" : "💀 GAME OVER";
+            
+            addMsg(`<div class="coach-box" style="border-color: ${cor}; color: ${cor};"><strong>${titulo}</strong><br>${mensagem}</div>`, 'ai', true);
+            optionsArea.innerHTML = '<button class="option-btn" onclick="location.reload()" style="text-align: center; font-weight: bold; background: var(--accent); color: #fff;">JOGAR NOVAMENTE</button>';
         }
 
         function mostrarDica(dica) {
