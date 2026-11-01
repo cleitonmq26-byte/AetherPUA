@@ -9,19 +9,19 @@
         :root { --bg: #0a0a0f; --msg-user: #1f2937; --msg-ai: #111827; --accent: #ef4444; --text: #e5e7eb; --coach: #3b82f6; --tip: #fbbf24; }
         body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* Tela de Setup (Modal) */
-        #setup-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,10,15,0.98); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; text-align: center; }
-        #setup-modal h1 { color: var(--accent); font-size: 28px; margin-bottom: 5px; letter-spacing: 2px; }
-        #setup-modal p { color: #9ca3af; margin-bottom: 25px; font-size: 14px; }
-        .setup-group { width: 100%; max-width: 350px; margin-bottom: 20px; }
-        .setup-group label { display: block; text-align: left; font-size: 12px; font-weight: bold; color: #d1d5db; margin-bottom: 8px; text-transform: uppercase; }
-        .setup-group select { width: 100%; background: #1f2937; color: #fff; border: 1px solid #374151; padding: 12px; border-radius: 8px; font-size: 15px; outline: none; }
-        .start-btn { background: var(--accent); color: #fff; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; max-width: 350px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+        /* Tela de Setup */
+        #setup-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,10,15,0.98); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; text-align: center; overflow-y: auto; }
+        #setup-modal h1 { color: var(--accent); font-size: 26px; margin-bottom: 5px; letter-spacing: 2px; }
+        #setup-modal p { color: #9ca3af; margin-bottom: 20px; font-size: 14px; }
+        .setup-group { width: 100%; max-width: 350px; margin-bottom: 15px; text-align: left; }
+        .setup-group label { display: block; font-size: 12px; font-weight: bold; color: #d1d5db; margin-bottom: 5px; }
+        .setup-group select, .setup-group input { width: 100%; background: #1f2937; color: #fff; border: 1px solid #374151; padding: 10px; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; }
+        .start-btn { background: var(--accent); color: #fff; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; max-width: 350px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); margin-top: 10px; }
 
         /* Popup de Dica */
-        #tip-popup { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #1f2937; border-left: 5px solid var(--tip); color: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.8); z-index: 900; width: 90%; max-width: 400px; transition: top 0.4s ease-in-out; font-size: 13px; line-height: 1.4; }
+        #tip-popup { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #1f2937; border-left: 5px solid var(--tip); color: #fff; padding: 12px 18px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.8); z-index: 900; width: 90%; max-width: 380px; transition: top 0.4s ease-in-out; font-size: 13px; line-height: 1.4; }
         #tip-popup.show { top: 20px; }
-        #tip-popup strong { color: var(--tip); display: block; margin-bottom: 5px; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+        #tip-popup strong { color: var(--tip); display: block; margin-bottom: 3px; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
 
         #header { padding: 10px; text-align: center; border-bottom: 1px solid #333; background: #111; display: flex; justify-content: space-between; align-items: center; }
         #header h1 { margin: 0; font-size: 18px; color: var(--accent); letter-spacing: 2px; font-weight: 900; }
@@ -39,18 +39,22 @@
         #input-area { padding: 10px; background: #111; border-top: 1px solid #333; display: flex; gap: 8px; align-items: flex-end; }
         textarea { flex: 1; background-color: #1f2937; border: 1px solid #374151; border-radius: 20px; padding: 10px 15px; color: white; resize: none; font-size: 15px; outline: none; max-height: 100px; }
         button.icon-btn { background: #374151; color: #fff; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 18px; cursor: pointer; }
-        button.send { background: var(--accent); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; }
+        button.send { background: var(--accent); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; transition: background 0.3s; }
     </style>
 </head>
 <body>
 
-    <!-- Modal de Setup -->
     <div id="setup-modal">
-        <h1>AETHER PUA ELITE</h1>
+        <h1>AETHER ELITE</h1>
         <p>Configure o seu treino</p>
         
         <div class="setup-group">
-            <label>Escolha o Alvo</label>
+            <label>Chave OpenRouter (sk-or-v1-...)</label>
+            <input type="password" id="api-key-input" placeholder="Cole sua chave aqui">
+        </div>
+
+        <div class="setup-group">
+            <label>Alvo</label>
             <select id="target-select">
                 <option value="fria e arrogante">Fria e Arrogante (Testa seu valor)</option>
                 <option value="extrovertida e festeira">Extrovertida (Alta energia)</option>
@@ -60,18 +64,17 @@
         </div>
 
         <div class="setup-group">
-            <label>Escolha o Mentor</label>
+            <label>Mentor</label>
             <select id="mentor-select">
-                <option value="mystery">Mystery (Indireto, Negs e DHV)</option>
-                <option value="strauss">Neil Strauss (Storytelling e Vulnerabilidade)</option>
-                <option value="julien">Julien Blanc (Dominância e Escalação)</option>
+                <option value="mystery">Mystery (Indireto, Negs)</option>
+                <option value="strauss">Neil Strauss (Storytelling)</option>
+                <option value="julien">Julien Blanc (Dominância)</option>
             </select>
         </div>
 
         <button class="start-btn" onclick="iniciarJogo()">INICIAR SIMULAÇÃO</button>
     </div>
 
-    <!-- Popup de Dica -->
     <div id="tip-popup">
         <strong>💡 Dica do Mentor</strong>
         <span id="tip-text"></span>
@@ -89,15 +92,12 @@
         <button class="icon-btn" onclick="document.getElementById('file-input').click()">📎</button>
         <button class="icon-btn" id="mic-btn" onclick="startVoice()">🎤</button>
         <textarea id="prompt" rows="1" placeholder="Digite sua abordagem..."></textarea>
-        <button class="send" onclick="enviar()">↑</button>
+        <button class="send" id="send-btn" onclick="enviar()">↑</button>
     </div>
 
     <script>
-        let openRouterKey = localStorage.getItem("aether_pua_key");
-        if (!openRouterKey) {
-            openRouterKey = prompt("Cole a sua chave OpenRouter (sk-or-v1-...):");
-            if(openRouterKey) localStorage.setItem("aether_pua_key", openRouterKey);
-        }
+        let openRouterKey = localStorage.getItem("aether_pua_key") || "";
+        if (openRouterKey) document.getElementById('api-key-input').value = openRouterKey;
 
         let history = [];
         let isRecording = false;
@@ -108,6 +108,7 @@
 
         const chat = document.getElementById('chat');
         const promptInput = document.getElementById('prompt');
+        const sendBtn = document.getElementById('send-btn');
 
         promptInput.addEventListener('input', function() {
             this.style.height = 'auto';
@@ -115,13 +116,23 @@
         });
 
         function iniciarJogo() {
+            let keyInput = document.getElementById('api-key-input').value.trim();
+            if (keyInput) {
+                openRouterKey = keyInput;
+                localStorage.setItem("aether_pua_key", openRouterKey);
+            }
+            if (!openRouterKey) {
+                alert("Por favor, insira a sua chave OpenRouter.");
+                return;
+            }
+
             activeMentor = document.getElementById('mentor-select').value;
             activeTarget = document.getElementById('target-select').value;
             document.getElementById('setup-modal').style.display = 'none';
             
-            history = [{role: "assistant", content: `[PERSONAGEM]\n(Você está em um bar. Uma mulher ${activeTarget} está por perto. Como você se aproxima?)\n\n[COACH]\nBem-vindo ao treino. Sua primeira missão é abrir a conversa. Use as técnicas do seu mentor.`}];
+            history = [{role: "assistant", content: `[PERSONAGEM]\n(Você está em um bar. Uma mulher ${activeTarget} está por perto. Como você se aproxima?)\n\n[COACH]\nBem-vindo. Sua missão é abrir a conversa usando as técnicas do seu mentor.\n\n[DICA]\nUse uma pergunta indireta ou um comentário situacional.`}];
             
-            addMsg(marked.parse(formatarResposta(history[0].content)), 'ai', true);
+            addMsg(formatarResposta(history[0].content), 'ai', true);
         }
 
         function handleImage(input) {
@@ -129,7 +140,7 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     currentBase64Image = e.target.result;
-                    alert("Imagem anexada! Agora digite 'Analise isso' ou faça sua pergunta.");
+                    alert("Imagem anexada! Digite o que quer fazer com ela.");
                 };
                 reader.readAsDataURL(input.files[0]);
             }
@@ -155,27 +166,34 @@
         }
 
         function formatarResposta(texto) {
-            // Captura a dica e remove ela do texto principal para o popup
-            let dicaMatch = texto.match(/\[DICA\]([\s\S]*?)(?=\[|$)/);
-            if (dicaMatch) {
-                let dica = dicaMatch[1].trim();
-                // Remove a dica do HTML principal
-                texto = texto.replace(/\[DICA\][\s\S]*?(?=\[|$)/, '');
-                // Mostra o popup
+            let dica = "", persona = "", coach = "";
+
+            let matchPersona = texto.match(/\[PERSONAGEM\]([\s\S]*?)(?=\[COACH\]|\[DICA\]|$)/);
+            let matchCoach = texto.match(/\[COACH\]([\s\S]*?)(?=\[PERSONAGEM\]|\[DICA\]|$)/);
+            let matchDica = texto.match(/\[DICA\]([\s\S]*?)(?=\[PERSONAGEM\]|\[COACH\]|$)/);
+
+            if (matchPersona) persona = marked.parse(matchPersona[1].trim());
+            if (matchCoach) coach = marked.parse(matchCoach[1].trim());
+            if (matchDica) {
+                dica = matchDica[1].trim();
                 mostrarDica(dica);
             }
 
-            return texto.replace(/\[PERSONAGEM\]/g, '<div class="persona-box"><strong>Ela diz:</strong><br>')
-                        .replace(/\[COACH\]/g, '</div><div class="coach-box"><strong>Análise do Coach:</strong><br>')
-                        .replace(/SCORE:\s*(\d+\/10)/g, '<span class="score">🏆 SCORE: $1</span>')
-                        + '</div>';
+            let html = "";
+            if (persona) html += `<div class="persona-box"><strong>Ela diz:</strong><br>${persona}</div>`;
+            if (coach) {
+                let coachHtml = coach.replace(/SCORE:\s*(\d+\/10)/g, '<span class="score">🏆 SCORE: $1</span>');
+                html += `<div class="coach-box"><strong>Análise do Coach:</strong><br>${coachHtml}</div>`;
+            }
+            
+            return html;
         }
 
         function mostrarDica(dica) {
             const popup = document.getElementById('tip-popup');
             document.getElementById('tip-text').innerText = dica;
             popup.classList.add('show');
-            setTimeout(() => { popup.classList.remove('show'); }, 7000); // Fica 7 segundos na tela
+            setTimeout(() => { popup.classList.remove('show'); }, 6000);
         }
 
         function getSystemPrompt() {
@@ -188,13 +206,13 @@
             base += `\n\nMODE: SIMULATION. Target: A woman who is ${activeTarget}. 
 You MUST format your response EXACTLY like this:
 [PERSONAGEM]
-(Act as the woman. React realistically. If the user uses good technique, engage. If bad, reject.)
+(Act as the woman.)
 
 [COACH]
-(Analyze the user's message based on the Mentor's style. Give a score from 0 to 10: SCORE: X/10. Be brutal.)
+(Analyze the user. Give a score: SCORE: X/10)
 
 [DICA]
-(A short, actionable tip (max 20 words) based on the Mentor's style for the user's NEXT message. This will pop up on the screen.)`;
+(A short tip for the user's NEXT message.)`;
 
             return base;
         }
@@ -202,7 +220,6 @@ You MUST format your response EXACTLY like this:
         async function enviar() {
             const texto = promptInput.value.trim();
             if (!texto && !currentBase64Image) return;
-            
             if (!openRouterKey) { alert("Chave da API não configurada."); return; }
             
             let userMsgObj = {role: "user", content: texto || "Analise a imagem enviada."};
@@ -210,11 +227,12 @@ You MUST format your response EXACTLY like this:
             
             promptInput.value = '';
             promptInput.style.height = 'auto';
+            sendBtn.style.background = '#9ca3af'; // Muda a cor do botão indicando envio
 
             let payloadContent = texto;
             if (currentBase64Image) {
                 payloadContent = [
-                    {type: "text", text: texto || "Analise isso e me diga como responder."},
+                    {type: "text", text: texto || "Analise isso."},
                     {type: "image_url", image_url: {url: currentBase64Image}}
                 ];
             }
@@ -245,17 +263,17 @@ You MUST format your response EXACTLY like this:
                 let resposta = data.choices[0].message.content;
                 history.push({role: "assistant", content: resposta});
                 
-                addMsg(marked.parse(formatarResposta(resposta)), 'ai', true);
+                addMsg(formatarResposta(resposta), 'ai', true);
                 
-                // TTS ignora a dica e o coach, lê apenas a mulher
                 if (!currentBase64Image && resposta.includes('[PERSONAGEM]')) {
                     lerTexto(resposta.split('[COACH]')[0]);
                 }
 
             } catch (e) {
                 removeTyping(typingId);
-                addMsg("Erro: " + e.message, 'ai');
+                addMsg("Erro na API: " + e.message, 'ai');
             }
+            sendBtn.style.background = '#ef4444'; // Volta a cor original
             currentBase64Image = null;
         }
 
