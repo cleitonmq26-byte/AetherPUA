@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aether PUA RPG Pro</title>
+    <title>Aether PUA Master</title>
     <style>
-        :root { --bg: #050505; --msg-user: #1f2937; --msg-ai: #0f0f13; --accent: #ef4444; --text: #e5e7eb; --coach: #3b82f6; --tip: #fbbf24; --good: #10b981; --bad: #ef4444;}
+        :root { --bg: #050505; --msg-user: #1f2937; --msg-ai: #0f0f13; --accent: #ef4444; --text: #e5e7eb; --coach: #3b82f6; --tip: #fbbf24; --good: #10b981; --tension: #e11d48; --bad: #ef4444;}
         body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
         #setup-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,5,5,0.98); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; text-align: center; }
@@ -15,10 +15,11 @@
         .setup-group select { width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 12px; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; }
         .start-btn { background: var(--accent); color: #fff; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; max-width: 350px; margin-top: 10px; }
 
-        #hud { background: #111; padding: 10px 15px; border-bottom: 1px solid #333; display: flex; flex-direction: column; gap: 5px; }
-        .hud-row { display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; color: #9ca3af; text-transform: uppercase; }
-        .bar-bg { width: 100%; height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
+        #hud { background: #111; padding: 10px 15px; border-bottom: 1px solid #333; display: flex; flex-direction: column; gap: 8px; }
+        .hud-row { display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; color: #9ca3af; text-transform: uppercase; margin-bottom: 2px;}
+        .bar-bg { width: 100%; height: 6px; background: #333; border-radius: 3px; overflow: hidden; margin-bottom: 4px;}
         #interest-bar { height: 100%; width: 50%; background: var(--good); transition: width 0.3s, background 0.3s; }
+        #tension-bar { height: 100%; width: 10%; background: var(--tension); transition: width 0.3s, background 0.3s; }
 
         #tip-popup { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #1f2937; border-left: 5px solid var(--tip); color: #fff; padding: 12px 18px; border-radius: 8px; z-index: 900; width: 90%; max-width: 380px; transition: top 0.4s ease-in-out; font-size: 13px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); }
         #tip-popup.show { top: 20px; }
@@ -31,7 +32,10 @@
         
         .coach-box { background: #0f172a; border-left: 4px solid var(--coach); padding: 10px; margin-top: 10px; border-radius: 4px; font-size: 13px; color: #93c5fd; }
         .persona-box { background: #2a1b1b; border-left: 4px solid var(--accent); padding: 10px; margin-bottom: 10px; border-radius: 4px; color: #fca5a5; font-style: italic;}
-        .score { font-weight: bold; font-size: 16px; display: block; margin-bottom: 5px; }
+        .score { font-weight: bold; font-size: 14px; display: inline-block; margin-right: 10px; padding: 2px 6px; border-radius: 4px;}
+        .score.pos { background: rgba(16, 185, 129, 0.2); color: var(--good); }
+        .score.neg { background: rgba(239, 68, 68, 0.2); color: var(--bad); }
+        .score.ten { background: rgba(225, 29, 72, 0.2); color: var(--tension); }
         
         #input-area { padding: 10px; background: #111; border-top: 1px solid #333; display: flex; gap: 8px; align-items: flex-end; }
         textarea { flex: 1; background-color: #1f2937; border: 1px solid #374151; border-radius: 20px; padding: 12px 15px; color: white; resize: none; font-size: 14px; outline: none; max-height: 80px; }
@@ -45,8 +49,8 @@
 <body>
 
     <div id="setup-modal">
-        <h1>AETHER ELITE</h1>
-        <p style="color:#9ca3af; font-size:13px; margin-bottom: 20px;">Simulador de Texto Livre</p>
+        <h1>AETHER MASTER</h1>
+        <p style="color:#9ca3af; font-size:13px; margin-bottom: 20px;">Simulador Avançado de Texto e Tensão</p>
         
         <div class="setup-group">
             <label>Alvo</label>
@@ -60,10 +64,9 @@
         <div class="setup-group">
             <label>Mentor</label>
             <select id="mentor-select">
-                <option value="mentalist">O Mentalista (Leitura Fria / NLP)</option>
-                <option value="mystery">Mystery (Negs / DHV)</option>
-                <option value="strauss">Neil Strauss (Storytelling)</option>
-                <option value="julien">Julien Blanc (Dominância)</option>
+                <option value="mentalist">Mentalista</option>
+                <option value="mystery">Mystery</option>
+                <option value="julien">Julien Blanc</option>
             </select>
         </div>
 
@@ -73,20 +76,22 @@
     <div id="hud">
         <div class="hud-row">
             <span id="fase-text">FASE 1: ABERTURA</span>
-            <span id="interest-text">INTERESSE: 50%</span>
+            <span id="interest-text" style="color:var(--good)">INTERESSE: 50%</span>
         </div>
         <div class="bar-bg"><div id="interest-bar"></div></div>
+        
+        <div class="hud-row">
+            <span style="color:var(--tension)">TENSÃO SEXUAL</span>
+            <span id="tension-text" style="color:var(--tension)">10%</span>
+        </div>
+        <div class="bar-bg"><div id="tension-bar"></div></div>
     </div>
 
     <div id="tip-popup"><strong>💡 Dica do Mentor</strong><span id="tip-text"></span></div>
 
     <div id="chat"></div>
 
-    <div id="options-area">
-        <div class="option-chip" onclick="inserirTexto('Você parece ser do tipo que esconde um lado selvagem.')">Leitura Fria</div>
-        <div class="option-chip" onclick="inserirTexto('Eu sinto que a maioria das pessoas te entende errado.')">Efeito Barnum</div>
-        <div class="option-chip" onclick="inserirTexto('Sinta a vibe do lugar, e imagine o que eu vou falar agora.')">Comando Embutido</div>
-    </div>
+    <div id="options-area"></div>
 
     <div id="input-area">
         <textarea id="prompt" rows="1" placeholder="Digite sua abordagem..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); enviarTexto();}"></textarea>
@@ -96,13 +101,14 @@
     <script>
         let activeMentor = "mentalist";
         let activeTarget = "fria";
-        let currentInterest = 50;
+        let interest = 50;
+        let tension = 10;
         let currentFase = 1; 
+        let shitTestCountdown = 3; // A cada 3 mensagens, ela testa você
 
         const chat = document.getElementById('chat');
         const interestBar = document.getElementById('interest-bar');
-        const interestText = document.getElementById('interest-text');
-        const faseText = document.getElementById('fase-text');
+        const tensionBar = document.getElementById('tension-bar');
         const promptInput = document.getElementById('prompt');
 
         function iniciarJogo() {
@@ -110,23 +116,32 @@
             activeTarget = document.getElementById('target-select').value;
             document.getElementById('setup-modal').style.display = 'none';
             
-            currentInterest = 50;
+            interest = 50;
+            tension = 10;
             currentFase = 1;
+            shitTestCountdown = 3;
             atualizarHUD();
             
             let intro = "";
-            if(activeTarget === 'fria') intro = "Ela está encostada na parede com os braços cruzados. Te olhando de cima a baixo.";
-            if(activeTarget === 'extrovertida') intro = "Ela está rindo alto e dançando com as amigas. A energia dela é enorme.";
-            if(activeTarget === 'nerd') intro = "Ela está num canto, lendo algo no celular com fones de ouvido.";
+            if(activeTarget === 'fria') intro = "Ela está encostada na parede, te olhando de cima a baixo. Braços cruzados.";
+            if(activeTarget === 'extrovertida') intro = "Ela está rindo alto com as amigas. A energia dela é altíssima.";
+            if(activeTarget === 'nerd') intro = "Ela está no canto, mexendo no celular. Parece introvertida.";
 
             addMsg(`<div class="persona-box"><strong>Situação:</strong><br>${intro}</div>`, 'ai', true);
-            
-            let mentorIntro = "";
-            if(activeMentor === 'mentalist') mentorIntro = "Use Leitura Fria ('Você parece...', 'Eu sinto...'), Efeito Barnum (vago mas específico) e Comandos Embutidos ('Imagine', 'Sinta').";
-            else mentorIntro = "Use as técnicas do seu mentor para abrir o jogo.";
-
-            addMsg(`<div class="coach-box"><strong>${activeMentor.toUpperCase()}:</strong><br>Sua missão é abrir o jogo. ${mentorIntro}</div>`, 'ai', true);
+            addMsg(`<div class="coach-box"><strong>${activeMentor.toUpperCase()}:</strong><br>Abra o jogo. Lembre-se: você precisa equilibrar Interesse (Verde) e Tensão Sexual (Vermelho). Se a tensão ficar em 0, você vira amigo.</div>`, 'ai', true);
             atualizarChips();
+        }
+
+        function atualizarHUD() {
+            interestBar.style.width = interest + '%';
+            document.getElementById('interest-text').innerText = `INTERESSE: ${interest}%`;
+            
+            tensionBar.style.width = tension + '%';
+            document.getElementById('tension-text').innerText = `${tension}%`;
+
+            if (currentFase === 1) document.getElementById('fase-text').innerText = "FASE 1: ABERTURA";
+            if (currentFase === 2) document.getElementById('fase-text').innerText = "FASE 2: CONEXÃO";
+            if (currentFase === 3) document.getElementById('fase-text').innerText = "FASE 3: FECHAMENTO";
         }
 
         function atualizarChips() {
@@ -136,26 +151,19 @@
             
             if (activeMentor === 'mentalist') {
                 chips = [
-                    {t: "Você parece ser do tipo que esconde um lado selvagem.", l: "Leitura Fria"},
-                    {t: "Eu sinto que a maioria das pessoas te entende errado.", l: "Barnum"},
-                    {t: "Sinta a vibe do lugar, e imagine o que eu vou falar agora.", l: "Comando Embutido"}
+                    {t: "Eu sinto que a maioria das pessoas te entende errado.", l: "Barnum (Interesse)"},
+                    {t: "Você tem um olhar perigoso, do tipo que esconde segredos.", l: "Leitura Fria (Tensão)"},
+                    {t: "Sinta o clima do lugar...", l: "Comando Embutido"}
                 ];
             } else if (activeMentor === 'mystery') {
                 chips = [
-                    {t: "Vocês parecem irmãs, mas brigaram no carro, né?", l: "Indireto"},
-                    {t: "Seu cabelo tá meio bagunçado hoje.", l: "Neg"},
-                    {t: "Eu tava ali com meus amigos, a gente tava falando de...", l: "DHV"}
+                    {t: "Vocês parecem irmãs, mas brigaram no carro, né?", l: "Indireto (Interesse)"},
+                    {t: "Seu cabelo tá meio bagunçado, mas ficou fofo.", l: "Neg (Tensão)"}
                 ];
             } else if (activeMentor === 'julien') {
                 chips = [
-                    {t: "Chega quebrando o rapport: 'Seu cabelo tá bagunçado'.", l: "Dominância"},
-                    {t: "Vem comigo, vai ser divertido.", l: "Liderança"},
-                    {t: "Sorria e mantenha o contato visual.", l: "Escalação"}
-                ];
-            } else {
-                chips = [
-                    {t: "Sabe qual é a coisa mais estranha que me aconteceu?", l: "Storytelling"},
-                    {t: "Eu tenho um segredo que nunca contei pra ninguém.", l: "Vulnerabilidade"}
+                    {t: "Vem, eu quero te mostrar uma coisa.", l: "Liderança (Tensão)"},
+                    {t: "Sorria e mantenha o contato visual.", l: "Escalação (Tensão)"}
                 ];
             }
 
@@ -168,88 +176,73 @@
             });
         }
 
-        function atualizarHUD() {
-            interestBar.style.width = currentInterest + '%';
-            interestText.innerText = `INTERESSE: ${currentInterest}%`;
-            
-            if (currentInterest >= 70) interestBar.style.background = 'var(--good)';
-            else if (currentInterest >= 40) interestBar.style.background = 'var(--tip)';
-            else interestBar.style.background = 'var(--bad)';
-
-            if (currentFase === 1) faseText.innerText = "FASE 1: ABERTURA";
-            if (currentFase === 2) faseText.innerText = "FASE 2: CONEXÃO";
-            if (currentFase === 3) faseText.innerText = "FASE 3: FECHAMENTO";
-        }
-
         function inserirTexto(texto) {
             promptInput.value = texto;
             promptInput.focus();
         }
 
+        // --- MOTOR DE ANÁLISE PSICOLÓGICA ---
         function analisarTexto(texto) {
             texto = texto.toLowerCase();
-            let dano = 0;
+            let dI = 0; // Dano no Interesse
+            let dT = 0; // Dano na Tensão
             let feedback = "";
             let reacao = "";
 
-            // --- LÓGICA DO MENTALISTA ---
-            if (activeMentor === 'mentalist') {
-                if (texto.includes("parece") || texto.includes("sinto") || texto.includes("tipo")) {
-                    dano += 25; 
-                    feedback = "Leitura Fria (Cold Reading). Você fez uma afirmação vaga parecer uma percepção profunda.";
-                    reacao = "Ela arregala os olhos: 'Nossa, como você soube disso?'";
-                }
-                else if (texto.includes("maioria") || texto.includes("esconde") || texto.includes("entende")) {
-                    dano += 20;
-                    feedback = "Efeito Barnum. A afirmação serve para qualquer pessoa, mas ela achou que era única.";
-                    reacao = "Ela sorri de lado: 'Ninguém nunca me descreveu tão bem'.";
-                }
-                else if (texto.includes("imagine") || texto.includes("sinta") || texto.includes("vibe")) {
-                    dano += 15;
-                    feedback = "Comando Embutido (NLP). Você plantou uma ideia no subconsciente dela.";
-                    reacao = "Ela relaxa os ombros e se aproxima um pouco.";
-                }
-                else if (texto.includes("beijo") || texto.includes("sair")) {
-                    dano -= 30; 
-                    feedback = "Erro fatal. O mentalista nunca quebra o frame pedindo algo diretamente.";
-                    reacao = "Ela volta à postura defensiva: 'Calma, estranho'.";
-                }
-                else {
-                    dano -= 10;
-                    feedback = "Muito lógico. O mentalista fala com o subconsciente, não com a razão.";
-                    reacao = "Ela dá de ombros e olha para o celular.";
-                }
-            } 
-            // --- LÓGICA DOS OUTROS MENTORES ---
+            // 1. Detecção de Frame (Pedir permissão é ruim)
+            if (texto.includes("posso") || texto.includes("será que") || texto.includes("desculpa")) {
+                dI -= 15; dT -= 10;
+                feedback = "Você pediu permissão (Low Frame). Homens de alto valor não pedem, eles conduzem.";
+                reacao = "Ela percebe a insegurança e se afasta um pouco.";
+            }
+            // 2. Lógica Mentalista (NLP)
+            else if (activeMentor === 'mentalist' && (texto.includes("parece") || texto.includes("sinto") || texto.includes("olhar"))) {
+                dI += 20; dT += 15;
+                feedback = "Leitura Fria certeira. Você gerou conexão e um clima misterioso.";
+                reacao = "Ela te olha nos olhos, curiosa: 'Por que você acha isso?'.";
+            }
+            // 3. Lógica Mystery (Negs)
+            else if (activeMentor === 'mystery' && (texto.includes("cabelo") || texto.includes("sapato") || texto.includes("fofo"))) {
+                dI += 15; dT += 20;
+                feedback = "Neg executado. Você mostrou que não é um bajulador e gerou atrito sexual.";
+                reacao = "Ela sorri de lado e arruma o cabelo: 'Engraçadinho'.";
+            }
+            // 4. Lógica Julien (Dominância)
+            else if (activeMentor === 'julien' && (texto.includes("vem") || texto.includes("quero") || texto.includes("pega"))) {
+                dI += 10; dT += 30;
+                feedback = "Dominância. Alta tensão sexual, mas cuidado para não ser agressivo demais.";
+                reacao = "Ela morde o lábio e te acompanha.";
+            }
+            // 5. Elogios Genéricos (Mata a tensão)
+            else if (texto.includes("linda") || texto.includes("gata") || texto.includes("princesa")) {
+                dI += 5; dT -= 20;
+                feedback = "Elogio genérico. Isso mata a tensão sexual e te coloca na prateleira de fãs.";
+                reacao = "Ela agradece sem graça e desvia o olhar.";
+            }
+            // 6. Físico Rápido (Assédio)
+            else if (texto.includes("beijo") || texto.includes("motel") || texto.includes("sexo")) {
+                dI -= 30; dT -= 20;
+                feedback = "Você quebrou o rapport. Escalação sem conexão prévia é assédio.";
+                reacao = "Ela te empurra: 'Você é doente? Se toca'.";
+            }
+            // 7. Amizade (Friendzone)
+            else if (texto.includes("amigo") || texto.includes("estudo") || texto.includes("trabalho")) {
+                dI += 15; dT -= 15;
+                feedback = "Papo de amigo. O interesse sobe, mas a tensão sexual cai. Cuidado com a Friendzone.";
+                reacao = "Ela fica à vontade para conversar, mas sem clima.";
+            }
+            // Neutro
             else {
-                if (texto.includes("linda") || texto.includes("gata")) {
-                    dano -= 20; feedback = "Elogio genérico. Abaixou seu valor.";
-                    reacao = "Ela revira os olhos: 'Já ouvi isso hoje'.";
-                } 
-                else if (texto.includes("cabelo") || texto.includes("sapato") || texto.includes("estilo")) {
-                    dano += 15; feedback = "Bom detalhe situacional.";
-                    reacao = "Ela toca no próprio cabelo: 'Você acha?'.";
-                }
-                else if (texto.includes("viagem") || texto.includes("trabalho")) {
-                    dano += 20; feedback = "DHV. Mostrou valor.";
-                    reacao = "Ela se inclina, interessada.";
-                }
-                else if (texto.includes("beijo") || texto.includes("sair") || texto.includes("motel")) {
-                    dano -= 30; feedback = "Muito rápido. Quebrou o rapport.";
-                    reacao = "Ela se afasta e cruza os braços.";
-                }
-                else {
-                    dano -= 5; feedback = "Neutro. Não gerou atração.";
-                    reacao = "Ela dá um sorriso amarelo.";
-                }
+                dI += 5; dT += 2;
+                feedback = "Mensagem neutra. Não gerou pico emocional.";
+                reacao = "Ela responde por educação.";
             }
 
             // Modificadores do Alvo
-            if (activeTarget === 'fria' && dano > 0) dano = Math.floor(dano / 2);
-            if (activeTarget === 'extrovertida' && texto.includes("festa") || texto.includes("dançar")) dano += 10; 
-            if (activeTarget === 'nerd' && activeMentor === 'mentalist' && texto.includes("parece")) dano += 10; // Nerd ama ser "lida"
+            if (activeTarget === 'fria' && dI > 0) dI = Math.floor(dI / 2); // Fria é mais difícil de interessar
+            if (activeTarget === 'extrovertida' && dT > 0) dT = Math.floor(dT * 1.5); // Extrovertida sente mais tensão
 
-            return { dano, feedback, reacao };
+            return { dI, dT, feedback, reacao };
         }
 
         function enviarTexto() {
@@ -260,56 +253,64 @@
             promptInput.value = '';
             promptInput.style.height = 'auto';
 
-            let resultado = analisarTexto(texto);
-            currentInterest += resultado.dano;
-            if (currentInterest > 100) currentInterest = 100;
-            if (currentInterest < 0) currentInterest = 0;
+            let res = analisarTexto(texto);
+            
+            interest += res.dI;
+            tension += res.dT;
+            
+            if (interest > 100) interest = 100; if (interest < 0) interest = 0;
+            if (tension > 100) tension = 100; if (tension < 0) tension = 0;
             
             atualizarHUD();
 
-            let scoreClass = resultado.dano >= 0 ? "var(--good)" : "var(--bad)";
-            let scoreText = (resultado.dano >= 0 ? "+" : "") + resultado.dano + "%";
-
             let html = `
-                <div class="persona-box"><strong>Reação:</strong><br>${resultado.reacao}</div>
+                <div class="persona-box"><strong>Reação:</strong><br>${res.reacao}</div>
                 <div class="coach-box">
                     <strong>Análise do Coach:</strong><br>
-                    <span class="score" style="color:${scoreClass}">${scoreText} de Interesse</span>
-                    ${resultado.feedback}
+                    <span class="score ${res.dI >= 0 ? 'pos' : 'neg'}">Interesse: ${res.dI >= 0 ? '+' : ''}${res.dI}%</span>
+                    <span class="score ten">Tensão: ${res.dT >= 0 ? '+' : ''}${res.dT}%</span><br>
+                    ${res.feedback}
                 </div>
             `;
             addMsg(html, 'ai', true);
 
-            if (currentInterest <= 0) {
-                gameOver(false);
-                return;
+            // Lógica de Game Over
+            if (interest <= 0) return gameOver("Você a irritou. Ela virou as costas e foi embora.");
+            if (tension <= 0 && interest >= 60) return gameOver("Você foi muito amigo. Ela te colocou na Friendzone e começou a falar do ex.");
+            if (tension >= 90 && interest <= 20) return gameOver("Você foi muito agressivo. Ela chamou o segurança.");
+
+            // Avanço de Fase
+            if (interest >= 80 && tension >= 60) {
+                if (currentFase === 1) {
+                    currentFase = 2; atualizarHUD();
+                    addMsg("<div class='coach-box'><strong>AVANÇO DE FASE!</strong><br>Abertura concluída. Agora crie conexão profunda.</div>", 'ai', true);
+                } else if (currentFase === 2) {
+                    currentFase = 3; atualizarHUD();
+                    addMsg("<div class='coach-box'><strong>AVANÇO DE FASE!</strong><br>Hora do fechamento. Isole ela e chame para sair.</div>", 'ai', true);
+                } else {
+                    return gameOver(true);
+                }
             }
 
-            if (currentInterest >= 85) {
-                if (currentFase === 1) {
-                    currentFase = 2;
-                    currentInterest = 50;
-                    atualizarHUD();
-                    addMsg("<div class='coach-box'><strong>AVANÇO DE FASE!</strong><br>Abertura concluída. Agora crie conexão emocional.</div>", 'ai', true);
-                    mostrarDica("Use o Efeito Barnum para parecer que a entende.");
-                } else if (currentFase === 2) {
-                    currentFase = 3;
-                    currentInterest = 50;
-                    atualizarHUD();
-                    addMsg("<div class='coach-box'><strong>AVANÇO DE FASE!</strong><br>Conexão estabelecida. Hora do fechamento.</div>", 'ai', true);
-                    mostrarDica("Use um comando embutido para convidá-la a sair.");
-                } else {
-                    gameOver(true);
-                }
+            // Shit Test (Teste de Valor)
+            shitTestCountdown--;
+            if (shitTestCountdown === 0 && interest > 20) {
+                shitTestCountdown = 3; // Reseta o contador
+                setTimeout(() => {
+                    addMsg(`<div class="persona-box" style="border-color: var(--tip)"><strong>💬 Teste de Valor (Shit Test):</strong><br>"Você fala desse jeito com todas as meninas ou só comigo?"</div>`, 'ai', true);
+                    mostrarDica("Não se justifique. Concordar e exagerar (Agree & Amplify) ou inverter o teste.");
+                }, 2500);
             }
         }
 
         function gameOver(vitoria) {
-            let cor = vitoria ? "var(--good)" : "var(--bad)";
-            let titulo = vitoria ? "🏆 VITÓRIA" : "💀 GAME OVER";
-            let msg = vitoria ? "Você usou as técnicas perfeitamente. Ela está rendida." : "O interesse zerou. Ela se virou e foi embora.";
+            let isWin = (vitoria === true);
+            let titulo = isWin ? "🏆 VITÓRIA" : "💀 GAME OVER";
+            let cor = isWin ? "var(--good)" : "var(--bad)";
+            let msg = isWin ? "Você dominou o jogo. Conseguiu o número, o beijo e o respeito." : vitoria;
             
             addMsg(`<div class="coach-box" style="border-color: ${cor}; color: ${cor};"><strong>${titulo}</strong><br>${msg}</div>`, 'ai', true);
+            
             promptInput.disabled = true;
             document.querySelector('.send').disabled = true;
             document.querySelector('.send').style.background = "#333";
